@@ -20,11 +20,10 @@
 .env
 .env.*
 !.env.example
-
 auth.json
 
 # =====================================================================
-# 2. PYTHON / FASTAPI / AI
+# 2. PYTHON / FASTAPI / AI ENVIRONMENT
 # =====================================================================
 **/venv/
 **/.venv/
@@ -39,15 +38,21 @@ auth.json
 .Python
 
 # =====================================================================
-# 3. DATASET & AI MODEL
+# 3. DATASET & AI MODEL (ATURAN SUPER KETAT)
 # =====================================================================
 /storage/app/public/eyes/*
 !/storage/app/public/eyes/.gitkeep
 
-**/dataset/
-**/datasets/
+# 1. BLOKIR TOTAL SELURUH ISI FOLDER AI-ENGINE
+/ai-engine/*
 
-# MODEL AI
+# 2. PENGECUALIAN: HANYA IZINKAN SCRIPT PYTHON & TEKS
+!/ai-engine/**/*.py
+!/ai-engine/*.py
+!/ai-engine/requirements.txt
+!/ai-engine/README.md
+
+# Blokir file model AI jika kebetulan ada di folder luar
 **/*.h5
 **/*.keras
 **/*.pt
@@ -55,14 +60,14 @@ auth.json
 **/*.onnx
 **/*.pkl
 
-saved_model/
-checkpoints/
-
 # =====================================================================
 # 4. DATABASE
 # =====================================================================
 *.sqlite
 database/database.sqlite
+
+# Cegah file dump database MySQL ter-upload tanpa sengaja
+*.sql
 
 # =====================================================================
 # 5. VITE / BUILD CACHE
@@ -78,20 +83,13 @@ Desktop.ini
 .DS_Store
 
 # =====================================================================
-# 7. IDE
+# 7. IDE & TOOLS
 # =====================================================================
 /.vscode/
 /.idea/
 /.fleet/
 /.nova/
 /.zed/
-
-/ai-engine/preprocessed_images/
-/vendor/
-/node_modules/
-.env
 .phpactor.json
-ai-engine/
-
 Homestead.json
 Homestead.yaml

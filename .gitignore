@@ -1,52 +1,53 @@
 # =====================================================================
-# 1. ZONA UTAMA: CORE LARAVEL COMPONENT & BACKEND
+# 1. LARAVEL CORE
 # =====================================================================
 /vendor/
 /node_modules/
 /public/build
 /public/hot
 /public/storage
+
 /storage/pail
 /storage/*.key
+/storage/logs/*.log
+
 .phpunit.result.cache
 /.phpunit.cache
 
-# Enkripsi & Token Rahasia (Sangat krusial untuk keamanan tim)
+# =====================================================================
+# ENV & SECRET
+# =====================================================================
 .env
-.env.backup
-.env.production
+.env.*
+!.env.example
+
 auth.json
 
 # =====================================================================
-# 2. ZONA ENGINE AI: PYTHON, FASTAPI, & VIRTUAL ENVIRONMENT (VENV)
+# 2. PYTHON / FASTAPI / AI
 # =====================================================================
-# Memblokir semua variasi nama Virtual Environment Python yang umum
 **/venv/
 **/.venv/
 **/env/
-**/.env/
 
-# Memblokir cache kompilasi Python (.pyc, __pycache__)
 **/__pycache__/
 **/.pytest_cache/
-**/.ipfs/
+
 *.pyc
 *.pyo
 *.pyd
 .Python
 
 # =====================================================================
-# 3. ZONA DATA MEDIS & FILE BINER BESAR (ANTI PUSH REJECT 2GB)
+# 3. DATASET & AI MODEL
 # =====================================================================
-# Proteksi Gambar Pasien (Jangan biarkan privasi medis bocor ke GitHub)
 /storage/app/public/eyes/*
 !/storage/app/public/eyes/.gitkeep
 
-# Blokir semua file dataset gambar lokal jika kamu menaruhnya di folder proyek
 **/dataset/
 **/datasets/
 
-# Blokir Model AI Biner Raksasa (Wajib lewat cloud storage / gdrive tim)
+# MODEL AI
 **/*.h5
 **/*.keras
 **/*.pt
@@ -54,23 +55,43 @@ auth.json
 **/*.onnx
 **/*.pkl
 
+saved_model/
+checkpoints/
+
 # =====================================================================
-# 4. ZONA TEMPLATE EDITOR & OPERATING SYSTEM (OS) WASTE
+# 4. DATABASE
 # =====================================================================
-# Windows OS dump
+*.sqlite
+database/database.sqlite
+
+# =====================================================================
+# 5. VITE / BUILD CACHE
+# =====================================================================
+vite.config.js.timestamp-*
+
+# =====================================================================
+# 6. OS FILES
+# =====================================================================
 Thumbs.db
 ehthumbs.db
 Desktop.ini
-
-# Mac OS dump
 .DS_Store
 
-# IDE & Editor Cache (VS Code, JetBrains PHPStorm, Fleet, dll)
+# =====================================================================
+# 7. IDE
+# =====================================================================
 /.vscode/
 /.idea/
 /.fleet/
 /.nova/
 /.zed/
+
+/ai-engine/preprocessed_images/
+/vendor/
+/node_modules/
+.env
 .phpactor.json
+ai-engine/
+
 Homestead.json
 Homestead.yaml

@@ -37,15 +37,45 @@
 
         <!-- Tombol Auth -->
         <div class="flex items-center gap-4">
-            @if (Route::has('login'))
-                @auth
-                    <a href="{{ url('/dashboard') }}" class="bg-blue-600 text-white px-7 py-2.5 rounded-full font-bold hover:bg-blue-700 shadow-lg transition">Dashboard</a>
-                @else
-                    <a href="{{ route('login') }}" class="text-slate-600 font-bold mr-2 hidden sm:inline-block">Masuk</a>
-                    <a href="{{ route('register') }}" class="bg-slate-900 text-white px-7 py-2.5 rounded-full font-bold hover:bg-slate-800 transition shadow-lg">Daftar</a>
-                @endauth
-            @endif
-        </div>
+    @if (Route::has('login'))
+        @auth
+            <div class="relative inline-block text-left">
+                
+                <button type="button" id="dropdownUserButton" class="flex items-center gap-3 bg-white border border-slate-200/80 hover:border-blue-300 px-5 py-2 rounded-full shadow-sm hover:shadow-md transition duration-300 group focus:outline-none">
+                    <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition duration-300">
+                        <i class="fa-solid fa-user-circle text-lg"></i>
+                    </div>
+                    
+                    <span class="flex items-center gap-2 font-bold text-slate-700 group-hover:text-blue-600 text-sm transition duration-300">
+                        {{ Auth::user()->name }}
+                        <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 group-hover:text-blue-500 transition duration-300"></i>
+                    </span>
+                </button>
+
+                <div id="dropdownUserMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 transform origin-top-right transition duration-200">
+                    
+                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">
+                        <i class="fa-solid fa-user-gear w-4 text-center"></i> Profile
+                    </a>
+
+                    <hr class="border-slate-100 my-1">
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition text-left">
+                            <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> Log Out
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        @else
+            <a href="{{ route('login') }}" class="text-slate-600 font-bold mr-2 hidden sm:inline-block hover:text-blue-600 transition">Masuk</a>
+            <a href="{{ route('register') }}" class="bg-slate-900 text-white px-7 py-2.5 rounded-full font-bold hover:bg-slate-800 transition shadow-lg">Daftar</a>
+        @endauth
+    @endif
+</div>
+
     </nav>
 
     <!-- Hero Section -->
@@ -61,9 +91,9 @@
                         EyeExpert menggunakan algoritma <strong>Deep Learning</strong> canggih untuk membantu Anda mendeteksi indikasi dini penyakit mata hanya melalui sebuah foto.
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                        <a href="{{ route('diagnosa.index') }}" class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 shadow-2xl shadow-blue-300 transition transform hover:-translate-y-1">
-                            Mulai Pemeriksaan Mandiri <i class="fa-solid fa-microscope ml-2"></i>
-                        </a>
+                       <a href="{{ url('/gejala-mata') }}" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 shadow-2xl shadow-blue-300 transition transform hover:-translate-y-1">
+    Pelajari Tentang Mata <i class="fa-solid fa-eye ml-2"></i>
+</a>
                     </div>
                 </div>
                 <div class="lg:w-1/2 relative">
@@ -236,6 +266,302 @@
                 }
             });
         });
+
+        // Logika Penggerak Dropdown Navbar
+    const dropdownBtn = document.getElementById('dropdownUserButton');
+    const dropdownMenu = document.getElementById('dropdownUserMenu');
+
+    if (dropdownBtn && dropdownMenu) {
+        // 1. Aksi ketika tombol nama di-klik
+        dropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Mencegah event klik tembus ke luar
+            dropdownMenu.classList.toggle('hidden');
+        });
+
+        // 2. Tutup dropdown otomatis jika user mengklik area lain di luar menu
+        window.addEventListener('click', (e) => {
+            if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+    }
+
+    // Logika Buka Tutup Pop-up Modal Diagnosa
+const openBtn = document.getElementById('openDiagnosaModal');
+const closeBtn = document.getElementById('closeDiagnosaModal');
+const modalBox = document.getElementById('diagnosaModal');
+
+if (openBtn && modalBox) {
+    openBtn.addEventListener('click', () => {
+        modalBox.classList.remove('hidden');
+    });
+    
+    closeBtn.addEventListener('click', () => {
+        modalBox.classList.add('hidden');
+    });
+
+    // Tutup jika klik area hitam di luar kotak putih
+    modalBox.addEventListener('click', (e) => {
+        if (e.target === modalBox) {
+            modalBox.classList.add('hidden');
+        }
+    });
+}
     </script>
+
+  <style>
+    /* CSS Dasar Kontainer Mengambang */
+    .floating-decor {
+        position: fixed;
+        bottom: 0; 
+        z-index: 45; 
+        display: flex;
+        align-items: flex-end; 
+        justify-content: center;
+        transition: all 0.3s ease-out;
+        pointer-events: none; 
+    }
+
+    /* --- PENGATURAN MIKROSKOP (KIRI) --- */
+    .decor-left {
+        left: 25px;
+        bottom: 25px; 
+        animation: float-microscope 4s ease-in-out infinite;
+    }
+
+    /* Bingkai Kaca Putih Transparan untuk Ikon Mata (PENGGANTI BIRU) */
+    .decor-left .icon-glass {
+        width: 85px;
+        height: 85px;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.6) !important; /* Menggunakan putih transparan */
+        border: 1px solid rgba(255, 255, 255, 0.8) !important; /* Garis tepi putih halus */
+        backdrop-filter: blur(12px) !important;
+        box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08) !important; /* Bayangan abu-abu lembut agar tidak kotor */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .decor-left i {
+        font-size: 38px;
+        color: #2563eb;
+    }
+/* --- PENGATURAN DOKTER (KANAN) --- */
+.decor-right {
+    right: -20px !important; /* Geser sedikit ke kanan */
+    bottom: 0 !important;
+
+    height: 48vh !important; /* Diperkecil sedikit */
+    width: auto;
+
+    animation: float-doctor 4.5s ease-in-out infinite;
+
+    pointer-events: auto !important;
+
+    opacity: 0.96;
+}
+
+.doctor-standing-img {
+    height: 100% !important;
+    width: auto !important;
+
+    display: block;
+    object-fit: contain;
+
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    filter: drop-shadow(-10px 10px 25px rgba(15, 23, 42, 0.14));
+}
+
+/* Hover halus */
+.decor-right:hover {
+    transform: scale(1.02);
+}
+
+    /* KEYFRAMES ANIMASI MENGAMBANG ALAMI */
+    @keyframes float-microscope {
+        0% { transform: translateY(0px) rotate(-1deg); }
+        50% { transform: translateY(-10px) rotate(1deg); }
+        100% { transform: translateY(0px) rotate(-1deg); }
+    }
+
+    @keyframes float-doctor {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-12px); } /* Gerakan naik turun vertikal yang lebih anggun */
+        100% { transform: translateY(0px); }
+    }
+
+    /* ================================================= */
+    /* RESPONSIVE RESPONSIVITAS MOBILE (HP) */
+    /* ================================================= */
+   @media (max-width: 768px) {
+       .decor-left .icon-glass {
+            width: 65px;
+            height: 65px;
+            background: rgba(255, 255, 255, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .decor-left i {
+            font-size: 28px;
+        }
+
+        .decor-left {
+            left: 12px;
+            bottom: 15px;
+        }
+
+        /* Di HP tingginya kita buat 30% dari layar agar tidak menutupi fungsionalitas tombol utama */
+        .decor-right {
+        right: -10px !important;
+        height: 28vh !important;
+        opacity: 0.92;
+    }
+    }
+
+    /* ================================================= */
+/* AI CHAT BUBBLE */
+/* ================================================= */
+
+.doctor-chat-bubble {
+    position: absolute;
+
+    top: 18%;
+    left: -230px;
+
+    max-width: 240px;
+
+    background: rgba(255,255,255,0.92);
+
+    backdrop-filter: blur(12px);
+
+    padding: 16px 18px;
+
+    border-radius: 24px;
+
+    border: 1px solid rgba(255,255,255,0.8);
+
+    box-shadow:
+        0 15px 35px rgba(15,23,42,0.10);
+
+    font-size: 15px;
+    font-weight: 600;
+
+    color: #1e293b;
+
+    line-height: 1.5;
+
+    animation: bubbleFloat 4s ease-in-out infinite;
+}
+
+/* Ekor Bubble */
+.doctor-chat-bubble::after {
+    content: "";
+
+    position: absolute;
+
+    right: -10px;
+    top: 35px;
+
+    width: 20px;
+    height: 20px;
+
+    background: rgba(255,255,255,0.92);
+
+    transform: rotate(45deg);
+
+    border-right: 1px solid rgba(255,255,255,0.8);
+    border-top: 1px solid rgba(255,255,255,0.8);
+}
+
+/* Emoji tangan */
+.wave-hand {
+    font-size: 18px;
+    margin-right: 6px;
+
+    display: inline-block;
+
+    animation: waving 2s infinite;
+}
+
+/* Animasi tangan */
+@keyframes waving {
+    0% { transform: rotate(0deg); }
+    15% { transform: rotate(14deg); }
+    30% { transform: rotate(-8deg); }
+    45% { transform: rotate(14deg); }
+    60% { transform: rotate(-4deg); }
+    75% { transform: rotate(10deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Bubble floating */
+@keyframes bubbleFloat {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
+}
+
+/* ================================================= */
+/* MOBILE RESPONSIVE */
+/* ================================================= */
+
+@media (max-width: 768px) {
+
+    .doctor-chat-bubble {
+
+        left: -170px;
+
+        top: 10%;
+
+        max-width: 170px;
+
+        font-size: 11px;
+
+        padding: 12px 14px;
+
+        border-radius: 18px;
+    }
+
+    .doctor-chat-bubble::after {
+
+        right: -8px;
+
+        width: 16px;
+        height: 16px;
+    }
+}
+</style>
+
+<a href="{{ route('diagnosa.index') }}" class="floating-decor decor-left group cursor-pointer" style="pointer-events: auto !important;">
+    <div class="icon-glass">
+        <img src="{{ asset('images/mata-icon.png') }}" 
+             alt="Icon Mata EyeExpert" 
+             class="w-16 h-16 md:w-20 md:h-20 object-contain transition duration-300 group-hover:scale-110">
+    </div>
+</a>
+<div class="floating-decor decor-right">
+
+    <!-- Bubble Chat AI -->
+    <div class="doctor-chat-bubble">
+        <span class="wave-hand">👋</span>
+        Hai, ada apa dengan matamu 
+        <strong>
+            {{ Auth::check() ? Auth::user()->name : 'Teman' }}
+        </strong>?
+    </div>
+
+    <img src="{{ asset('images/doctor-image2.png') }}" 
+         alt="Dokter Ahli Oftalmologi EyeExpert" 
+         class="doctor-standing-img">
+</div>
+    <img src="{{ asset('images/doctor-image2.png') }}" 
+         alt="Dokter Ahli Oftalmologi EyeExpert" 
+         class="doctor-standing-img">
+</div>
+
 </body>
 </html>

@@ -14,19 +14,41 @@ use Illuminate\Support\Facades\Route;
 // Halaman Landing Page - Perkenalan & Edukasi Mata
 Route::get('/', [PageController::class, 'landing'])->name('landing');
 
+// Halaman Edukasi Publik (Akses Tanpa Harus Login)
+Route::get('/gejala-mata', function () {
+    return view('gejala-mata');
+})->name('gejala.mata'); // Dipakai tombol "Pelajari Tentang Mata"
+
+// Cadangan nama route lama agar tidak memicu eror di file Laravel Breeze bawaan
+Route::get('/gejala-mata-alias', function () {
+    return redirect()->route('gejala.mata');
+})->name('gejala-mata');
+
+Route::get('/penyakit-mata', function () {
+    return view('penyakit-mata');
+})->name('penyakit-mata');
+
+Route::get('/pencegahan-mata', function () {
+    return view('pencegahan-mata');
+})->name('pencegahan-mata');
+
+Route::get('/kacamata', function () {
+    return view('kacamata');
+})->name('kacamata');
+
 
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes (Harus Login)
 |--------------------------------------------------------------------------
 */
-
 Route::middleware(['auth', 'verified'])->group(function () {
     
     // Dashboard - Redirect ke Landing Page setelah login
-Route::get('/dashboard', function () {
-    return redirect()->route('landing');
-})->name('dashboard');
+    Route::get('/dashboard', function () {
+        return redirect()->route('landing');
+    })->name('dashboard');
+
     // Fitur Diagnosa AI
     Route::prefix('diagnosa')->name('diagnosa.')->group(function () {
         Route::get('/', [DiagnosisController::class, 'index'])->name('index');
@@ -41,20 +63,5 @@ Route::get('/dashboard', function () {
     });
     
 });
-
-Route::get('/gejala-mata', function () {
-    return view('gejala-mata');
-})->name('gejala-mata');
-
-Route::get('/penyakit-mata', function () {
-    return view('penyakit-mata');
-})->name('penyakit-mata');
-
-Route::get('/pencegahan-mata', function () {
-    return view('pencegahan-mata');
-})->name('pencegahan-mata');
-Route::get('/kacamata', function () {
-    return view('kacamata');
-})->name('kacamata');
 
 require __DIR__.'/auth.php';

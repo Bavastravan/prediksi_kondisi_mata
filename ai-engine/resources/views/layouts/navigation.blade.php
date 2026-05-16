@@ -15,20 +15,6 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('gejala-mata')" :active="request()->routeIs('gejala-mata')">
-                        Gejala Mata
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('penyakit-mata')" :active="request()->routeIs('penyakit-mata')">
-                        Penyakit Mata
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('pencegahan-mata')" :active="request()->routeIs('pencegahan-mata')">
-                        Pencegahan
-                    </x-nav-link>
-                    <x-nav-link :href="route('kacamata')" :active="request()->routeIs('kacamata')">
-                        Kacamata
-                    </x-nav-link>
                 </div>
             </div>
 

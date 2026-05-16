@@ -42,19 +42,4 @@ Route::get('/dashboard', function () {
     
 });
 
-Route::get('/gejala-mata', function () {
-    return view('gejala-mata');
-})->name('gejala-mata');
-
-Route::get('/penyakit-mata', function () {
-    return view('penyakit-mata');
-})->name('penyakit-mata');
-
-Route::get('/pencegahan-mata', function () {
-    return view('pencegahan-mata');
-})->name('pencegahan-mata');
-Route::get('/kacamata', function () {
-    return view('kacamata');
-})->name('kacamata');
-
 require __DIR__.'/auth.php';

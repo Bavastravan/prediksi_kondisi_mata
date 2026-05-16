@@ -14,7 +14,7 @@
 
     
 </div>
-        <!-- INTRO -->
+        
         <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
             <p class="text-gray-700 leading-relaxed">
                 Gejala mata merupakan manifestasi klinis dari gangguan pada struktur atau fungsi organ penglihatan.

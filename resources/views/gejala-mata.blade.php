@@ -7,7 +7,7 @@
             <p class="text-gray-500">Klik setiap kartu untuk melihat penjelasan medis lebih lengkap</p>
         </div>
 
-        <!-- IMAGE -->
+        
         <div class="relative rounded-3xl overflow-hidden shadow-xl h-[500px]">
     <img src="{{ asset('images/gejala.jpg') }}"
          class="w-full h-full object-cover">

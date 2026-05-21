@@ -13,13 +13,21 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex h-16">
-                    <a href="{{ url('/') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('dashboard') || request()->path() == '/' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-blue-600' }} text-sm transition">
+                    <a href="{{ url('/') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->path() == '/' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-blue-600' }} text-sm transition">
                         Beranda
                     </a>
 
-                    @if(request()->routeIs('diagnosa.*'))
+                    @if(request()->routeIs('diagnosa.*') || request()->routeIs('tes.*'))
                         <x-nav-link :href="route('diagnosa.index')" :active="request()->routeIs('diagnosa.*')">
-                            Diagnosa Oftalmologi
+                            {{ __('Diagnosa Oftalmologi') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('tes.minus_plus')" :active="request()->routeIs('tes.minus_plus')">
+                            {{ __('Tes Minus / Plus') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('tes.buta_warna')" :active="request()->routeIs('tes.buta_warna')">
+                            {{ __('Skrining Buta Warna') }}
                         </x-nav-link>
                     @else
                         <x-nav-link :href="route('gejala.mata')" :active="request()->routeIs('gejala.mata')">
@@ -87,17 +95,42 @@
         </div>
     </div>
 
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-white border-t border-slate-100">
+        <div class="pt-2 pb-3 space-y-1 px-2">
+            <x-responsive-nav-link :href="url('/')" :active="request()->path() == '/'">
                 {{ __('Beranda') }}
             </x-responsive-nav-link>
+
+            @if(request()->routeIs('diagnosa.*') || request()->routeIs('tes.*'))
+                <x-responsive-nav-link :href="route('diagnosa.index')" :active="request()->routeIs('diagnosa.*')">
+                    {{ __('Diagnosa Oftalmologi') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('tes.minus_plus')" :active="request()->routeIs('tes.minus_plus')">
+                    {{ __('Tes Minus / Plus') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('tes.buta_warna')" :active="request()->routeIs('tes.buta_warna')">
+                    {{ __('Skrining Buta Warna') }}
+                </x-responsive-nav-link>
+            @else
+                <x-responsive-nav-link :href="route('gejala.mata')" :active="request()->routeIs('gejala.mata')">
+                    {{ __('Gejala Mata') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('penyakit-mata')" :active="request()->routeIs('penyakit-mata')">
+                    {{ __('Penyakit Mata') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('pencegahan-mata')" :active="request()->routeIs('pencegahan-mata')">
+                    {{ __('Pencegahan') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('kacamata')" :active="request()->routeIs('kacamata')">
+                    {{ __('Kacamata') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         @auth
-            <div class="pt-4 pb-1 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
-                <div class="px-4 mb-2 flex items-center gap-3">
-                    <div class="w-9 h-9 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
+            <div class="pt-4 pb-3 border-t border-slate-100 bg-slate-50/70 rounded-b-2xl">
+                <div class="px-4 mb-3 flex items-center gap-3">
+                    <div class="w-9 h-9 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm shadow-sm">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     </div>
                     <div>
@@ -106,22 +139,22 @@
                     </div>
                 </div>
 
-                <div class="mt-3 space-y-1 px-2">
-                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">
-                        <i class="fa-solid fa-user-gear text-slate-400"></i> {{ __('Profile') }}
+                <div class="space-y-1 px-2">
+                    <a href="{{ route('profile.edit') }}" class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">
+                        <i class="fa-solid fa-user-gear text-slate-400 w-4 text-center"></i> {{ __('Profile') }}
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition text-left">
-                            <i class="fa-solid fa-right-from-bracket text-red-400"></i> {{ __('Log Out') }}
+                        <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition text-left">
+                            <i class="fa-solid fa-right-from-bracket text-red-400 w-4 text-center"></i> {{ __('Log Out') }}
                         </button>
                     </form>
                 </div>
             </div>
         @else
-            <div class="pt-4 pb-4 border-t border-slate-100 px-4 flex flex-col gap-2">
-                <a href="{{ route('login') }}" class="text-center text-slate-600 font-bold py-2 rounded-xl hover:bg-slate-50 text-sm transition">Masuk</a>
-                <a href="{{ route('register') }}" class="text-center bg-blue-600 text-white font-bold py-2 rounded-xl text-sm shadow-md transition">Daftar</a>
+            <div class="pt-4 pb-4 border-t border-slate-100 px-4 flex flex-col gap-2 bg-slate-50/50">
+                <a href="{{ route('login') }}" class="text-center text-slate-600 font-bold py-2.5 rounded-xl hover:bg-slate-100 text-sm transition">Masuk</a>
+                <a href="{{ route('register') }}" class="text-center bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm shadow-md shadow-blue-100 transition">Daftar</a>
             </div>
         @endauth
     </div>

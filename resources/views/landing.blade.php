@@ -6,17 +6,36 @@
     <title>EyeExpert - Cek Kesehatan Mata Praktis dengan AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        
-        /* Perbaikan: Agar landing tepat di bawah navbar saat diklik */
-        html {
-            scroll-padding-top: 90px;
-        }
-        
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
-    </style>
+   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+    
+    /* 1. Efek scrolling halus */
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    body { 
+        font-family: 'Plus Jakarta Sans', sans-serif; 
+    }
+    
+    .glass { 
+        background: rgba(255, 255, 255, 0.7); 
+        backdrop-filter: blur(10px); 
+    }
+
+    /* 2. Solusi presisi posisi landing (Ganti 5rem dengan tinggi navbar-mu) */
+    #edukasi {
+        scroll-margin-top: 5rem; /* Memberi ruang agar judul tidak tertutup navbar */
+    }
+
+    /* Opsi tambahan: Animasi saat kursor hover di menu */
+    .nav-link {
+        transition: color 0.3s ease;
+    }
+    .nav-link:hover {
+        color: #2563eb; /* Biru Tailwind */
+    }
+</style>
 </head>
 <body class="bg-slate-50 text-slate-900">
 
@@ -32,7 +51,9 @@
         <!-- Menu Tengah -->
         <div class="hidden md:flex gap-8 font-semibold text-slate-600" id="nav-menu">
             <a href="#about" class="nav-link hover:text-blue-600 transition duration-300">Cara Kerja</a>
-            <a href="#edukasi" class="nav-link hover:text-blue-600 transition duration-300">Info Penyakit</a>
+            <a href="{{ request()->is('/') ? '#edukasi' : url('/#edukasi') }}" class="nav-link">
+    Info Penyakit
+</a>
         </div>
 
         <!-- Tombol Auth -->
@@ -79,8 +100,8 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <div class="container mx-auto px-6 lg:px-20 relative z-10">
+   <section class="relative pt-24 pb-20 lg:pt-32 lg:pb-32 overflow-hidden">
+       <div class="container mx-auto px-6 lg:px-20 relative z-10">
             <div class="flex flex-col lg:flex-row items-center gap-12">
                 <div class="lg:w-1/2 text-center lg:text-left">
                     <span class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border border-blue-200">Medical Computation Engine</span>
@@ -177,137 +198,143 @@
     </div>
 </section>
 
-    <!-- Education Section -->
-   <section id="edukasi" class="py-20 lg:py-24 bg-white">
+    <section id="edukasi" class="pt-20 pb-10 lg:pt-24 lg:pb-8 bg-white">
     <div class="container mx-auto px-6 lg:px-20">
         <div class="text-center max-w-2xl mx-auto mb-16 lg:mb-20">
             <span class="text-blue-600 font-bold text-sm uppercase tracking-widest">Ensiklopedia Medis</span>
             <h2 class="text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight mt-2">Patologi Mata Umum</h2>
-            <p class="text-slate-600 mt-4 italic text-base lg:text-lg italic leading-relaxed">"Informasi ini bertujuan untuk edukasi dini, bukan pengganti konsultasi medis profesional."</p>
+            <p class="text-slate-600 mt-4 italic text-base lg:text-lg leading-relaxed">"Informasi ini bertujuan untuk edukasi dini, bukan pengganti konsultasi medis profesional."</p>
         </div>
 
-            <!-- Perbaikan: Grid Responsive -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-                <!-- Katarak -->
-                <div class="group p-8 lg:p-10 bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-blue-100 transition-all duration-500 hover:-translate-y-2">
-                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-blue-600 transition-colors duration-500">
-                        <i class="fa-solid fa-circle-notch text-3xl text-blue-600 group-hover:text-white"></i>
-                    </div>
-                    <h3 class="text-2xl font-extrabold mb-4 text-slate-800 tracking-tight">Katarak</h3>
-                    <p class="text-slate-600 leading-relaxed text-sm text-justify">Pengentalan atau kekeruhan pada lensa mata yang menghalangi cahaya masuk. Umumnya berkembang seiring bertambahnya usia.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            
+            <div class="group p-8 bg-white rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-blue-100 transition-all duration-500 hover:-translate-y-2 border-b-4 hover:border-b-blue-500">
+                <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-blue-600 transition-colors duration-500">
+                    <i class="fa-solid fa-circle-notch text-3xl text-blue-600 group-hover:text-white"></i>
                 </div>
-
-                <!-- Glaukoma -->
-                <div class="group p-8 lg:p-10 bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-red-100 transition-all duration-500 hover:-translate-y-2 border-b-4 border-b-transparent hover:border-b-red-500">
-                    <div class="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-red-500 transition-colors duration-500">
-                        <i class="fa-solid fa-triangle-exclamation text-3xl text-red-500 group-hover:text-white"></i>
-                    </div>
-                    <h3 class="text-2xl font-extrabold mb-4 text-slate-800 tracking-tight">Glaukoma</h3>
-                    <p class="text-slate-600 leading-relaxed text-sm text-justify">Dikenal sebagai "Si Pencuri Penglihatan". Kerusakan saraf optik akibat tekanan cairan bola mata yang terlalu tinggi.</p>
-                </div>
-
-                <!-- Mata Sehat -->
-                <div class="group p-8 lg:p-10 bg-white rounded-[2rem] lg:rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-green-100 transition-all duration-500 hover:-translate-y-2 border-b-4 border-b-transparent hover:border-b-green-500">
-                    <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-green-500 transition-colors duration-500">
-                        <i class="fa-solid fa-shield-halved text-3xl text-green-500 group-hover:text-white"></i>
-                    </div>
-                    <h3 class="text-2xl font-extrabold mb-4 text-slate-800 tracking-tight">Mata Sehat</h3>
-                    <p class="text-slate-600 leading-relaxed text-sm text-justify">Fungsi mata yang optimal dengan lensa jernih dan tekanan normal. Pastikan nutrisi sayuran hijau untuk menjaga retina.</p>
-                </div>
+                <h3 class="text-xl font-extrabold mb-3 text-slate-800">Katarak</h3>
+                <p class="text-slate-600 leading-relaxed text-sm">Kekeruhan lensa mata yang menghalangi cahaya masuk. Umumnya ditandai pandangan kabur seperti tertutup asap.</p>
             </div>
+
+            <div class="group p-8 bg-white rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-orange-100 transition-all duration-500 hover:-translate-y-2 border-b-4 hover:border-b-orange-500">
+                <div class="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-orange-500 transition-colors duration-500">
+                    <i class="fa-solid fa-fire text-3xl text-orange-500 group-hover:text-white"></i>
+                </div>
+                <h3 class="text-xl font-extrabold mb-3 text-slate-800">Uveitis</h3>
+                <p class="text-slate-600 leading-relaxed text-sm">Peradangan pada lapisan uvea mata. Gejala khasnya mata merah pekat, nyeri hebat, dan sangat sensitif terhadap cahaya (silau).</p>
+            </div>
+
+            <div class="group p-8 bg-white rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-purple-100 transition-all duration-500 hover:-translate-y-2 border-b-4 hover:border-b-purple-500">
+                <div class="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-purple-500 transition-colors duration-500">
+                    <i class="fa-solid fa-droplet text-3xl text-purple-500 group-hover:text-white"></i>
+                </div>
+                <h3 class="text-xl font-extrabold mb-3 text-slate-800">Konjungtivitis</h3>
+                <p class="text-slate-600 leading-relaxed text-sm">Infeksi pada selaput bening mata. Umumnya ditandai dengan kotoran mata (belekan) berlebih dan rasa lengket saat bangun tidur.</p>
+            </div>
+
+            <div class="group p-8 bg-white rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-amber-100 transition-all duration-500 hover:-translate-y-2 border-b-4 hover:border-b-amber-500">
+                <div class="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-amber-500 transition-colors duration-500">
+                    <i class="fa-solid fa-eye-low-vision text-3xl text-amber-500 group-hover:text-white"></i>
+                </div>
+                <h3 class="text-xl font-extrabold mb-3 text-slate-800">Hordeolum</h3>
+                <p class="text-slate-600 leading-relaxed text-sm">Penyumbatan kelenjar minyak pada kelopak mata (bintitan). Muncul benjolan kemerahan yang terasa nyeri saat ditekan.</p>
+            </div>
+
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-12">
+    <footer class="bg-white border-t border-slate-200 pt-6 pb-12 text-center relative">
         <div class="container mx-auto px-6 text-center">
-            <p class="font-bold text-slate-400 uppercase tracking-[0.2em] text-[10px] mb-4">Proyek Praktik Sistem Pakar - 2026</p>
+            <p class="font-bold text-slate-400 uppercase tracking-[0.2em] text-[10px] mb-4">Proyek Praktik Sistem Cerdas - 2026</p>
             <div class="flex justify-center gap-6 text-slate-300 text-xl mb-8">
                 <i class="fa-brands fa-github hover:text-slate-900 cursor-pointer"></i>
                 <i class="fa-brands fa-laravel hover:text-red-500 cursor-pointer"></i>
                 <i class="fa-brands fa-python hover:text-blue-500 cursor-pointer"></i>
             </div>
-            <p class="text-slate-500 text-xs">© 2026 <strong>Indrawan Ophthalmology Project</strong>. Dirancang untuk edukasi dan bantuan medis berbasis komputasi.</p>
+            <p class="text-slate-500 text-xs">© 2026 <strong>Sistem Pakar Pendeteksi Gangguan Mata</strong>. Dirancang untuk edukasi dan bantuan medis berbasis komputasi.</p>
         </div>
     </footer>
 
-    <script>
-        // Ambil elemen
-        const sections = document.querySelectorAll('section');
-        const navLinks = document.querySelectorAll('.nav-link');
+   <script>
+    // 1. Integrasi Nama User ke Chat Bubble
+    const userName = @json(Auth::check() ? Auth::user()->name : 'Teman');
+    const chatBubble = document.querySelector('.doctor-chat-bubble');
+    if (chatBubble) {
+        // Menggunakan innerHTML dengan variabel yang aman
+        chatBubble.innerHTML = `
+            <span class="wave-hand">👋</span>
+            Hai, ada apa dengan matamu 
+            <strong>${userName}</strong>?
+        `;
+    }
 
-        // Fungsi klik: Ubah warna secara manual saat diklik
+    // 2. Navigasi & Auto-Scroll Highlight
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Hapus class warna dari semua link
+            navLinks.forEach(innerLink => {
+                innerLink.classList.remove('text-blue-600');
+                innerLink.classList.add('text-slate-600');
+            });
+            // Tambah warna pada yang diklik
+            this.classList.remove('text-slate-600');
+            this.classList.add('text-blue-600');
+        });
+    });
+
+    window.addEventListener('scroll', () => {
+        let current = "";
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            // Toleransi 200px agar menu berubah sebelum mencapai batas atas
+            if (window.pageYOffset >= (sectionTop - 200)) {
+                current = section.getAttribute('id');
+            }
+        });
+
         navLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                navLinks.forEach(innerLink => {
-                    innerLink.classList.replace('text-blue-600', 'text-slate-600');
-                });
-                this.classList.replace('text-slate-600', 'text-blue-600');
-            });
+            link.classList.remove('text-blue-600');
+            link.classList.add('text-slate-600');
+            
+            // Cek apakah href mengandung ID section yang aktif
+            if (current && link.getAttribute('href').includes(current)) {
+                link.classList.remove('text-slate-600');
+                link.classList.add('text-blue-600');
+            }
         });
+    });
 
-        // Perbaikan: Auto-Update warna menu saat scroll
-        window.addEventListener('scroll', () => {
-            let current = "";
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (pageYOffset >= (sectionTop - 150)) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navLinks.forEach(link => {
-                link.classList.remove('text-blue-600');
-                link.classList.add('text-slate-600');
-                if (link.getAttribute('href').includes(current)) {
-                    link.classList.remove('text-slate-600');
-                    link.classList.add('text-blue-600');
-                }
-            });
-        });
-
-        // Logika Penggerak Dropdown Navbar
+    // 3. Dropdown User
     const dropdownBtn = document.getElementById('dropdownUserButton');
     const dropdownMenu = document.getElementById('dropdownUserMenu');
 
     if (dropdownBtn && dropdownMenu) {
-        // 1. Aksi ketika tombol nama di-klik
         dropdownBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Mencegah event klik tembus ke luar
+            e.stopPropagation();
             dropdownMenu.classList.toggle('hidden');
         });
-
-        // 2. Tutup dropdown otomatis jika user mengklik area lain di luar menu
-        window.addEventListener('click', (e) => {
-            if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.classList.add('hidden');
-            }
-        });
+        window.addEventListener('click', () => dropdownMenu.classList.add('hidden'));
     }
 
-    // Logika Buka Tutup Pop-up Modal Diagnosa
-const openBtn = document.getElementById('openDiagnosaModal');
-const closeBtn = document.getElementById('closeDiagnosaModal');
-const modalBox = document.getElementById('diagnosaModal');
+    // 4. Modal Diagnosa
+    const openBtn = document.getElementById('openDiagnosaModal');
+    const closeBtn = document.getElementById('closeDiagnosaModal');
+    const modalBox = document.getElementById('diagnosaModal');
 
-if (openBtn && modalBox) {
-    openBtn.addEventListener('click', () => {
-        modalBox.classList.remove('hidden');
-    });
-    
-    closeBtn.addEventListener('click', () => {
-        modalBox.classList.add('hidden');
-    });
-
-    // Tutup jika klik area hitam di luar kotak putih
-    modalBox.addEventListener('click', (e) => {
-        if (e.target === modalBox) {
-            modalBox.classList.add('hidden');
-        }
-    });
-}
-    </script>
+    if (openBtn && modalBox) {
+        openBtn.addEventListener('click', () => modalBox.classList.remove('hidden'));
+        if (closeBtn) closeBtn.addEventListener('click', () => modalBox.classList.add('hidden'));
+        
+        modalBox.addEventListener('click', (e) => {
+            if (e.target === modalBox) modalBox.classList.add('hidden');
+        });
+    }
+</script>
 
   <style>
     /* CSS Dasar Kontainer Mengambang */
@@ -558,9 +585,6 @@ if (openBtn && modalBox) {
          alt="Dokter Ahli Oftalmologi EyeExpert" 
          class="doctor-standing-img">
 </div>
-    <img src="{{ asset('images/doctor-image2.png') }}" 
-         alt="Dokter Ahli Oftalmologi EyeExpert" 
-         class="doctor-standing-img">
 </div>
 
 </body>

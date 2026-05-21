@@ -55,13 +55,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [DiagnosisController::class, 'store'])->name('store');
     });
 
-    // Profile User
+    // Fitur Cek Minus/Plus Terpisah
+    Route::get('/tes-minus-plus', function () {
+        return view('tes_minus_plus');
+    })->name('tes.minus_plus');
+
+    // Fitur Cek Buta Warna Terpisah
+    Route::get('/tes-buta-warna', function () {
+        return view('tes_buta_warna');
+    })->name('tes.buta_warna');
+
+    // Profile User (Dimasukkan ke dalam agar aman terlindungi auth)
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     });
     
-});
+}); // 💡 Penutup tunggal grup middleware auth yang sah dan pas!
 
 require __DIR__.'/auth.php';

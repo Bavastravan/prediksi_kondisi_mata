@@ -36,23 +36,26 @@ auth.json
 *.pyo
 *.pyd
 .Python
-
 # =====================================================================
-# 3. DATASET & AI MODEL (ATURAN SUPER KETAT)
+# 3. DATASET & AI MODEL (UPDATE: IZINKAN DATASET)
 # =====================================================================
 /storage/app/public/eyes/*
 !/storage/app/public/eyes/.gitkeep
 
-# 1. BLOKIR TOTAL SELURUH ISI FOLDER AI-ENGINE
+# 1. BLOKIR AI-ENGINE SECARA UMUM
 /ai-engine/*
 
-# 2. PENGECUALIAN: HANYA IZINKAN SCRIPT PYTHON & TEKS
+# 2. IZINKAN FOLDER DATASET AGAR BISA DI-PUSH
+!/ai-engine/dataset/
+!/ai-engine/dataset/**
+
+# 3. IZINKAN SCRIPT PYTHON & DOKUMENTASI
 !/ai-engine/**/*.py
 !/ai-engine/*.py
 !/ai-engine/requirements.txt
 !/ai-engine/README.md
 
-# Blokir file model AI jika kebetulan ada di folder luar
+# TETAP BLOKIR FILE MODEL AI (KARENA UKURANNYA BESAR)
 **/*.h5
 **/*.keras
 **/*.pt

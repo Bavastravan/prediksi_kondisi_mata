@@ -6,16 +6,14 @@
 /public/build
 /public/hot
 /public/storage
-
 /storage/pail
 /storage/*.key
 /storage/logs/*.log
-
 .phpunit.result.cache
 /.phpunit.cache
 
 # =====================================================================
-# ENV & SECRET
+# 2. ENV & SECRET
 # =====================================================================
 .env
 .env.*
@@ -23,71 +21,55 @@
 auth.json
 
 # =====================================================================
-# 2. PYTHON / FASTAPI / AI ENVIRONMENT
+# 3. PYTHON / AI ENVIRONMENT
 # =====================================================================
 **/venv/
 **/.venv/
 **/env/
-
 **/__pycache__/
 **/.pytest_cache/
-
 *.pyc
 *.pyo
 *.pyd
 .Python
-# =====================================================================
-# 3. DATASET & AI MODEL (UPDATE: IZINKAN DATASET)
-# =====================================================================
-/storage/app/public/eyes/*
-!/storage/app/public/eyes/.gitkeep
 
-# 1. BLOKIR AI-ENGINE SECARA UMUM
+# =====================================================================
+# 4. AI-ENGINE & DATASET (IZINKAN SCRIPT, DATASET, DAN MODEL)
+# =====================================================================
+# Blokir dulu semua isi folder ai-engine
 /ai-engine/*
 
-# 2. IZINKAN FOLDER DATASET AGAR BISA DI-PUSH
+# Izinkan folder yang diperlukan
 !/ai-engine/dataset/
 !/ai-engine/dataset/**
-
-# 3. IZINKAN SCRIPT PYTHON & DOKUMENTASI
 !/ai-engine/**/*.py
 !/ai-engine/*.py
 !/ai-engine/requirements.txt
 !/ai-engine/README.md
 
-# TETAP BLOKIR FILE MODEL AI (KARENA UKURANNYA BESAR)
-**/*.h5
-**/*.keras
-**/*.pt
-**/*.pth
-**/*.onnx
-**/*.pkl
+# IZINKAN FILE MODEL AI (Dihapus tanda blokirnya dan diberi pengecualian)
+!/**/*.h5
+!/**/*.keras
+!/**/*.pt
+!/**/*.pth
+!/**/*.onnx
+!/**/*.pkl
 
 # =====================================================================
-# 4. DATABASE
+# 5. DATABASE
 # =====================================================================
 *.sqlite
 database/database.sqlite
-
-# Cegah file dump database MySQL ter-upload tanpa sengaja
 *.sql
 
 # =====================================================================
-# 5. VITE / BUILD CACHE
+# 6. VITE / BUILD CACHE / OS / IDE
 # =====================================================================
 vite.config.js.timestamp-*
-
-# =====================================================================
-# 6. OS FILES
-# =====================================================================
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
-
-# =====================================================================
-# 7. IDE & TOOLS
-# =====================================================================
 /.vscode/
 /.idea/
 /.fleet/

@@ -1,0 +1,38 @@
+# 1. Gunakan image PHP yang mendukung Laravel
+FROM php:8.2-fpm
+
+# 2. Instal library sistem yang dibutuhkan (Git, Unzip, dan Python untuk AI)
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    python3 \
+    python3-pip \
+    python3-venv
+
+# 3. Instal library Python yang dibutuhkan (Contoh: TensorFlow)
+# Kita gunakan --break-system-packages agar instalasi mulus di container
+RUN pip3 install --break-system-packages tensorflow numpy opencv-python pillow
+
+# 4. Instal Composer (untuk Laravel)
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# 5. Tentukan lokasi folder aplikasi di dalam server
+WORKDIR /var/www
+
+# 6. Salin file proyekmu ke dalam server
+COPY . .
+
+# 7. Instal package Laravel
+RUN composer install --no-dev --optimize-autoloader
+
+# 8. Berikan akses folder agar bisa menulis file (seperti upload foto)
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
+# 9. Jalankan aplikasi (port 8000)
+EXPOSE 8000
+CMD php artisan serve --host=0.0.0.0 --port=8000

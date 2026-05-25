@@ -1,38 +1,36 @@
-# 1. Gunakan image PHP yang mendukung Laravel
+# 1. Base image PHP
 FROM php:8.2-fpm
 
-# 2. Instal library sistem yang dibutuhkan (Git, Unzip, dan Python untuk AI)
+# 2. Install sistem dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    python3 \
-    python3-pip \
-    python3-venv
+    git curl libpng-dev libonig-dev libxml2-dev \
+    zip unzip nginx supervisor \
+    python3 python3-pip python3-venv \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 3. Instal library Python yang dibutuhkan (Contoh: TensorFlow)
-# Kita gunakan --break-system-packages agar instalasi mulus di container
+# 3. Install Python AI dependencies
 RUN pip3 install --break-system-packages tensorflow numpy opencv-python pillow
 
-# 4. Instal Composer (untuk Laravel)
+# 4. Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 5. Tentukan lokasi folder aplikasi di dalam server
+# 5. Set working directory
 WORKDIR /var/www
 
-# 6. Salin file proyekmu ke dalam server
+# 6. Copy project
 COPY . .
 
-# 7. Instal package Laravel
+# 7. Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# 8. Berikan akses folder agar bisa menulis file (seperti upload foto)
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+# 8. Set permissions
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# 9. Jalankan aplikasi (port 8000)
-EXPOSE 8000
-CMD php artisan serve --host=0.0.0.0 --port=8000
+# 9. Copy nginx config
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 80
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

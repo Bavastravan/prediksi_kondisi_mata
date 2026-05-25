@@ -34,27 +34,24 @@ auth.json
 .Python
 
 # =====================================================================
-# 4. AI-ENGINE & DATASET (IZINKAN SCRIPT, DATASET, DAN MODEL)
+# 4. AI-ENGINE & DATASET (BLOKIR DATASET AGAR TIDAK TER-PUSH)
 # =====================================================================
-# Blokir dulu semua isi folder ai-engine
+# Blokir seluruh isi folder ai-engine
 /ai-engine/*
 
-# Izinkan folder yang diperlukan
-!/ai-engine/dataset/
-!/ai-engine/dataset/**
+# IZINKAN SCRIPT DAN FILE PENTING SAJA (Dataset diblokir)
 !/ai-engine/**/*.py
 !/ai-engine/*.py
 !/ai-engine/requirements.txt
 !/ai-engine/README.md
 
-# IZINKAN FILE MODEL AI (Dihapus tanda blokirnya dan diberi pengecualian)
+# IZINKAN FILE MODEL AI (Tetap diizinkan)
 !/**/*.h5
 !/**/*.keras
 !/**/*.pt
 !/**/*.pth
 !/**/*.onnx
 !/**/*.pkl
-
 # =====================================================================
 # 5. DATABASE
 # =====================================================================
@@ -78,3 +75,4 @@ Desktop.ini
 .phpactor.json
 Homestead.json
 Homestead.yaml
+/ai-engine/dataset/

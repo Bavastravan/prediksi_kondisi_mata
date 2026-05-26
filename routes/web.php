@@ -65,12 +65,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('tes_buta_warna');
     })->name('tes.buta_warna');
 
+    // Fitur Riwayat & Cetak PDF
+    Route::get('/riwayat', [\App\Http\Controllers\HistoryController::class, 'index'])->name('riwayat.index');
+    Route::get('/riwayat/pdf/{id}', [\App\Http\Controllers\HistoryController::class, 'exportPdf'])->name('riwayat.pdf');
+
     // Profile User (Dimasukkan ke dalam agar aman terlindungi auth)
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     });
+
     
 }); // 💡 Penutup tunggal grup middleware auth yang sah dan pas!
 

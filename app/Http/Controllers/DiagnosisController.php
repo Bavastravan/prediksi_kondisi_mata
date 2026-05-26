@@ -225,7 +225,17 @@ class DiagnosisController extends Controller
             'confidence' => $finalConfidencePercentage,
         ]);
 
-        // 7. Render Hasil Akhir Ke Halaman `diagnosa_hasil`
+        // 7. Simpan Histori Lengkap ke Database
+        Diagnosis::create([
+            'user_id' => auth()->id(),
+            'age' => $request->age,
+            'symptoms' => json_encode($userSymptoms), 
+            'image_path' => $imagePath,
+            'result' => $finalPrediction,
+            'confidence' => $finalConfidencePercentage,
+        ]);
+
+        // 8. Render Hasil Akhir Ke Halaman `diagnosa_hasil`
         return view('diagnosa_hasil', [
             'class' => $finalPrediction,
             'confidence' => $finalConfidencePercentage,

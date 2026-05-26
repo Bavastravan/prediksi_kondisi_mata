@@ -9,12 +9,17 @@ class Diagnosis extends Model
 {
     use HasFactory;
 
-    // Tambahkan baris ini
     protected $fillable = [
+        'user_id',
         'age',
         'symptoms',
         'image_path',
         'result',
         'confidence'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

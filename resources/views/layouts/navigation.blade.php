@@ -17,7 +17,7 @@
                         Beranda
                     </a>
 
-                    @if(request()->routeIs('diagnosa.*') || request()->routeIs('tes.*'))
+                    @if(request()->routeIs('diagnosa.*') || request()->routeIs('tes.*') || request()->routeIs('riwayat.*'))
                         <x-nav-link :href="route('diagnosa.index')" :active="request()->routeIs('diagnosa.*')">
                             {{ __('Diagnosa Oftalmologi') }}
                         </x-nav-link>
@@ -28,6 +28,10 @@
 
                         <x-nav-link :href="route('tes.buta_warna')" :active="request()->routeIs('tes.buta_warna')">
                             {{ __('Skrining Buta Warna') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('riwayat.index')" :active="request()->routeIs('riwayat.*')">
+                            {{ __('Riwayat Pemeriksaan') }}
                         </x-nav-link>
                     @else
                         <x-nav-link :href="route('gejala.mata')" :active="request()->routeIs('gejala.mata')">
@@ -101,7 +105,7 @@
                 {{ __('Beranda') }}
             </x-responsive-nav-link>
 
-            @if(request()->routeIs('diagnosa.*') || request()->routeIs('tes.*'))
+            @if(request()->routeIs('diagnosa.*') || request()->routeIs('tes.*') || request()->routeIs('riwayat.*'))
                 <x-responsive-nav-link :href="route('diagnosa.index')" :active="request()->routeIs('diagnosa.*')">
                     {{ __('Diagnosa Oftalmologi') }}
                 </x-responsive-nav-link>
@@ -110,6 +114,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('tes.buta_warna')" :active="request()->routeIs('tes.buta_warna')">
                     {{ __('Skrining Buta Warna') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('riwayat.index')" :active="request()->routeIs('riwayat.*')">
+                    {{ __('Riwayat Pemeriksaan') }}
                 </x-responsive-nav-link>
             @else
                 <x-responsive-nav-link :href="route('gejala.mata')" :active="request()->routeIs('gejala.mata')">

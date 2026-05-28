@@ -74,4 +74,4 @@ Desktop.ini
 /.zed/
 .phpactor.json
 Homestead.json
-Homestead.yamlgit add .gitignore
+Homestead.yaml

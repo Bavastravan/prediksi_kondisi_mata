@@ -34,18 +34,18 @@ auth.json
 .Python
 
 # =====================================================================
-# 4. AI-ENGINE & DATASET (BLOKIR DATASET AGAR TIDAK TER-PUSH)
+# 4. AI-ENGINE & DATASET
 # =====================================================================
-# Blokir seluruh isi folder ai-engine
 /ai-engine/*
 
-# IZINKAN SCRIPT DAN FILE PENTING SAJA (Dataset diblokir)
+!/ai-engine/dataset/
+!/ai-engine/dataset/**
 !/ai-engine/**/*.py
 !/ai-engine/*.py
 !/ai-engine/requirements.txt
 !/ai-engine/README.md
 
-# IZINKAN FILE MODEL AI (Tetap diizinkan)
+# IZINKAN FILE MODEL AI
 !/**/*.h5
 !/**/*.keras
 !/**/*.pt

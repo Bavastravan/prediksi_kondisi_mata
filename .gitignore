@@ -74,5 +74,4 @@ Desktop.ini
 /.zed/
 .phpactor.json
 Homestead.json
-Homestead.yaml
-/ai-engine/dataset/
+Homestead.yamlgit add .gitignore

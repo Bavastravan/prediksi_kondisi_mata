@@ -1,0 +1,72 @@
+# =====================================================================
+# 1. ZONA UTAMA: CORE LARAVEL COMPONENT & BACKEND
+# =====================================================================
+/vendor/
+/node_modules/
+/public/build
+/public/hot
+/public/storage
+/storage/pail
+/storage/*.key
+.phpunit.result.cache
+/.phpunit.cache
+
+# Enkripsi & Token Rahasia (Sangat krusial untuk keamanan tim)
+.env
+.env.backup
+.env.production
+auth.json
+
+# =====================================================================
+# 2. ZONA ENGINE AI: PYTHON, FASTAPI, & VIRTUAL ENVIRONMENT (VENV)
+# =====================================================================
+# Memblokir semua variasi nama Virtual Environment Python yang umum
+**/venv/
+**/.venv/
+**/env/
+**/.env/
+
+# Memblokir cache kompilasi Python (.pyc, __pycache__)
+**/__pycache__/
+**/.pytest_cache/
+**/.ipfs/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# =====================================================================
+# 3. ZONA DATA MEDIS & FILE BINER BESAR (ANTI PUSH REJECT 2GB)
+# =====================================================================
+# Proteksi Gambar Pasien (Jangan biarkan privasi medis bocor ke GitHub)
+/storage/app/public/eyes/*
+!/storage/app/public/eyes/.gitkeep
+
+# Blokir Model AI Biner Raksasa (Wajib lewat cloud storage / gdrive tim)
+**/*.h5
+**/*.keras
+**/*.pt
+**/*.pth
+**/*.onnx
+**/*.pkl
+
+# =====================================================================
+# 4. ZONA TEMPLATE EDITOR & OPERATING SYSTEM (OS) WASTE
+# =====================================================================
+# Windows OS dump
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Mac OS dump
+.DS_Store
+
+# IDE & Editor Cache (VS Code, JetBrains PHPStorm, Fleet, dll)
+/.vscode/
+/.idea/
+/.fleet/
+/.nova/
+/.zed/
+.phpactor.json
+Homestead.json
+Homestead.yaml

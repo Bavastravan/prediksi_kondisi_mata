@@ -36,22 +36,13 @@ auth.json
 # =====================================================================
 # 4. AI-ENGINE & DATASET
 # =====================================================================
-/ai-engine/*
+# Abaikan folder dataset (data training, tidak diperlukan di produksi)
+/ai-engine/dataset/
 
-!/ai-engine/dataset/
-!/ai-engine/dataset/**
-!/ai-engine/**/*.py
-!/ai-engine/*.py
-!/ai-engine/requirements.txt
-!/ai-engine/README.md
+# Model AI (.h5, .keras, .pt, dll) TIDAK di-ignore.
+# Secara default Git melacak semua file kecuali yang diabaikan,
+# jadi file model otomatis tetap ikut ter-push tanpa aturan tambahan.
 
-# IZINKAN FILE MODEL AI
-!/**/*.h5
-!/**/*.keras
-!/**/*.pt
-!/**/*.pth
-!/**/*.onnx
-!/**/*.pkl
 # =====================================================================
 # 5. DATABASE
 # =====================================================================

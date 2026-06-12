@@ -36,13 +36,9 @@ auth.json
 # =====================================================================
 # 4. AI-ENGINE & DATASET
 # =====================================================================
-# Abaikan folder dataset (data training, tidak diperlukan di produksi)
+# Abaikan folder dataset dan gambar preprocessing (Sangat memakan ukuran repo)
 /ai-engine/dataset/
-
-# Model AI (.h5, .keras, .pt, dll) TIDAK di-ignore.
-# Secara default Git melacak semua file kecuali yang diabaikan,
-# jadi file model otomatis tetap ikut ter-push tanpa aturan tambahan.
-
+/ai-engine/preprocessed_images/
 # =====================================================================
 # 5. DATABASE
 # =====================================================================

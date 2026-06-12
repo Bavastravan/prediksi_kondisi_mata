@@ -159,47 +159,78 @@
             </div>
 
             <div class="grid grid-cols-2 gap-3 mt-2">
-                <button onclick="window.location.reload()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 border border-slate-600 shadow-md">
-                    <i class="fa-solid fa-rotate-right text-slate-400"></i> Uji Ulang
-                </button>
-                <a href="{{ route('diagnosa.index') }}" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/30">
-                    <i class="fa-solid fa-circle-check"></i> Selesai
-                </a>
+                <button onclick="ujiUlang()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 border border-slate-600 shadow-md">
+    <i class="fa-solid fa-rotate-right text-slate-400"></i> Uji Ulang
+</button>
+                <button onclick="selesaiTes()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/30">
+    <i class="fa-solid fa-circle-check"></i> Selesai
+</button>
             </div>
             
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 pt-6 pb-12 text-center relative">
+        <div class="container mx-auto px-6 text-center">
+                       <p class="text-slate-500 text-xs">© 2026 <strong>Sistem Pakar Pendeteksi Gangguan Mata</strong>. Dirancang untuk edukasi dan bantuan medis berbasis komputasi.</p>
+        </div>
+    </footer>
+    
     <script>
         // ==========================================
         // 🎛️ CONTROLLER TAB NAVIGASI
         // ==========================================
+        function konversiKeConfidence(finalIdx) {
+    return Math.round(((finalIdx + 1) / 6) * 100);
+}
+        let currentMode = 'minus';
         function switchMode(mode) {
-            const btnMinus = document.getElementById('tab-minus');
-            const btnPlus = document.getElementById('tab-plus');
-            const panelMinus = document.getElementById('panel-minus');
-            const panelPlus = document.getElementById('panel-plus');
+    currentMode = mode; // 👈 simpan mode yang dipilih user
 
-            if (mode === 'minus') {
-                // Style Tombol
-                btnMinus.className = "flex-1 md:flex-none px-4 md:px-8 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-blue-600 text-white shadow-lg transition-all whitespace-nowrap";
-                btnPlus.className  = "flex-1 md:flex-none px-4 md:px-8 py-2.5 rounded-xl text-xs md:text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap";
-                // Tampilan Panel
-                panelPlus.classList.add('hidden');
-                panelPlus.classList.remove('grid');
-                panelMinus.classList.remove('hidden');
-                panelMinus.classList.add('grid');
-            } else {
-                // Style Tombol
-                btnPlus.className  = "flex-1 md:flex-none px-4 md:px-8 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-amber-600 text-white shadow-lg transition-all whitespace-nowrap";
-                btnMinus.className = "flex-1 md:flex-none px-4 md:px-8 py-2.5 rounded-xl text-xs md:text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap";
-                // Tampilan Panel
-                panelMinus.classList.add('hidden');
-                panelMinus.classList.remove('grid');
-                panelPlus.classList.remove('hidden');
-                panelPlus.classList.add('grid');
-            }
-        }
+    const btnMinus = document.getElementById('tab-minus');
+    const btnPlus = document.getElementById('tab-plus');
+    const panelMinus = document.getElementById('panel-minus');
+    const panelPlus = document.getElementById('panel-plus');
+
+    if (mode === 'minus') {
+        btnMinus.className = "flex-1 md:flex-none px-4 md:px-8 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-blue-600 text-white shadow-lg transition-all whitespace-nowrap";
+        btnPlus.className  = "flex-1 md:flex-none px-4 md:px-8 py-2.5 rounded-xl text-xs md:text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap";
+        panelPlus.classList.add('hidden');
+        panelPlus.classList.remove('grid');
+        panelMinus.classList.remove('hidden');
+        panelMinus.classList.add('grid');
+    } else {
+        btnPlus.className  = "flex-1 md:flex-none px-4 md:px-8 py-2.5 rounded-xl text-xs md:text-sm font-bold bg-amber-600 text-white shadow-lg transition-all whitespace-nowrap";
+        btnMinus.className = "flex-1 md:flex-none px-4 md:px-8 py-2.5 rounded-xl text-xs md:text-sm font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap";
+        panelMinus.classList.add('hidden');
+        panelMinus.classList.remove('grid');
+        panelPlus.classList.remove('hidden');
+        panelPlus.classList.add('grid');
+    }
+}
+
+function ujiUlang() {
+    // Reset state tes Minus
+    stepMinus = 0;
+    scoreMinus = 0;
+    document.getElementById('step-text-minus').innerText = `Baris 1/6 (${vaMinus[0]})`;
+    document.getElementById('progress-bar-minus').style.width = "16.6%";
+    loadCharMinus();
+
+    // Reset state tes Plus
+    stepPlus = 0;
+    scorePlus = 0;
+    document.getElementById('step-text-plus').innerText = `Level 1/6 (${vaPlus[0]})`;
+    document.getElementById('progress-bar-plus').style.width = "16.6%";
+    loadTextPlus();
+
+    // Tutup modal
+    document.getElementById('modal-hasil').classList.add('hidden');
+
+    // Kembali ke tab yang sedang aktif sebelumnya
+    switchMode(currentMode);
+}
 
         // ==========================================
         // 👁️ ENGINE 1: TES RABUN JAUH (MINUS)
@@ -288,42 +319,86 @@
         // ==========================================
         // 📊 FUNGSI RENDER MODAL HASIL UNIVERSAL
         // ==========================================
-        function tampilkanHasil(mode, totalBenar) {
-            let finalIdx = totalBenar - 1;
-            if (finalIdx < 0) finalIdx = 0;
+        let dataHasilTerakhir = null; // 👈 simpan hasil tes terakhir
 
-            const modal = document.getElementById('modal-hasil');
-            const iconBox = document.getElementById('modal-icon-container');
-            const valScore = document.getElementById('res-score-value');
-            const valKesimpulan = document.getElementById('res-kesimpulan');
-            const boxKesimpulan = document.getElementById('res-box-kesimpulan');
+function tampilkanHasil(mode, totalBenar) {
+    let finalIdx = totalBenar - 1;
+    if (finalIdx < 0) finalIdx = 0;
 
-            if (mode === 'minus') {
-                document.getElementById('res-tipe-tes').innerText = "Tes Refraksi Jarak Jauh";
-                document.getElementById('res-tipe-tes').className = "font-bold text-slate-200 bg-blue-900/50 px-2.5 py-1 rounded-md border border-blue-700/60 text-xs";
-                
-                iconBox.className = "w-16 h-16 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/30 shadow-inner";
-                valScore.className = "font-black text-blue-400 text-base font-mono";
-                valScore.innerText = vaMinus[finalIdx];
-                
-                boxKesimpulan.className = "bg-blue-950/40 border border-blue-500/40 rounded-xl p-3 shadow-inner";
-                valKesimpulan.className = "font-extrabold text-sm text-blue-300 leading-relaxed block text-center";
-                valKesimpulan.innerText = conclusMinus[finalIdx];
-            } else {
-                document.getElementById('res-tipe-tes').innerText = "Tes Baca (Presbiopia/Plus)";
-                document.getElementById('res-tipe-tes').className = "font-bold text-slate-200 bg-amber-900/50 px-2.5 py-1 rounded-md border border-amber-700/60 text-xs";
-                
-                iconBox.className = "w-16 h-16 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/30 shadow-inner";
-                valScore.className = "font-black text-amber-400 text-base font-mono";
-                valScore.innerText = vaPlus[finalIdx];
-                
-                boxKesimpulan.className = "bg-amber-950/40 border border-amber-500/40 rounded-xl p-3 shadow-inner";
-                valKesimpulan.className = "font-extrabold text-sm text-amber-300 leading-relaxed block text-center";
-                valKesimpulan.innerText = conclusPlus[finalIdx];
-            }
+    const modal = document.getElementById('modal-hasil');
+    const iconBox = document.getElementById('modal-icon-container');
+    const valScore = document.getElementById('res-score-value');
+    const valKesimpulan = document.getElementById('res-kesimpulan');
+    const boxKesimpulan = document.getElementById('res-box-kesimpulan');
 
-            modal.classList.remove('hidden');
-        }
+    const confidence = konversiKeConfidence(finalIdx); // 👈 hitung confidence
+
+    if (mode === 'minus') {
+        document.getElementById('res-tipe-tes').innerText = "Tes Refraksi Jarak Jauh";
+        document.getElementById('res-tipe-tes').className = "font-bold text-slate-200 bg-blue-900/50 px-2.5 py-1 rounded-md border border-blue-700/60 text-xs";
+        
+        iconBox.className = "w-16 h-16 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/30 shadow-inner";
+        valScore.className = "font-black text-blue-400 text-base font-mono";
+        valScore.innerText = vaMinus[finalIdx];
+        
+        boxKesimpulan.className = "bg-blue-950/40 border border-blue-500/40 rounded-xl p-3 shadow-inner";
+        valKesimpulan.className = "font-extrabold text-sm text-blue-300 leading-relaxed block text-center";
+        valKesimpulan.innerText = conclusMinus[finalIdx];
+
+        // 👈 simpan data hasil
+        dataHasilTerakhir = {
+            type: 'minus',
+            va_score: vaMinus[finalIdx],
+            conclusion: conclusMinus[finalIdx],
+            confidence: confidence
+        };
+    } else {
+        document.getElementById('res-tipe-tes').innerText = "Tes Baca (Presbiopia/Plus)";
+        document.getElementById('res-tipe-tes').className = "font-bold text-slate-200 bg-amber-900/50 px-2.5 py-1 rounded-md border border-amber-700/60 text-xs";
+        
+        iconBox.className = "w-16 h-16 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/30 shadow-inner";
+        valScore.className = "font-black text-amber-400 text-base font-mono";
+        valScore.innerText = vaPlus[finalIdx];
+        
+        boxKesimpulan.className = "bg-amber-950/40 border border-amber-500/40 rounded-xl p-3 shadow-inner";
+        valKesimpulan.className = "font-extrabold text-sm text-amber-300 leading-relaxed block text-center";
+        valKesimpulan.innerText = conclusPlus[finalIdx];
+
+        // 👈 simpan data hasil
+        dataHasilTerakhir = {
+            type: 'plus',
+            va_score: vaPlus[finalIdx],
+            conclusion: conclusPlus[finalIdx],
+            confidence: confidence
+        };
+    }
+
+    modal.classList.remove('hidden');
+} 
+
+function selesaiTes() {
+    if (!dataHasilTerakhir) {
+        window.location.href = "{{ route('riwayat.index') }}";
+        return;
+    }
+
+    fetch("{{ route('refraksi.store') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify(dataHasilTerakhir)
+    })
+    .then(() => {
+        window.location.href = "{{ route('riwayat.index') }}";
+    })
+    .catch(() => {
+        // tetap arahkan ke riwayat meski gagal simpan, agar UX tidak macet
+        window.location.href = "{{ route('riwayat.index') }}";
+    });
+}
 
         // Inisialisasi awal saat halaman dimuat
         loadCharMinus();

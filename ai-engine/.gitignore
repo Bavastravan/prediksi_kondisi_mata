@@ -42,13 +42,6 @@ auth.json
 /storage/app/public/eyes/*
 !/storage/app/public/eyes/.gitkeep
 
-# Blokir Model AI Biner Raksasa (Wajib lewat cloud storage / gdrive tim)
-**/*.h5
-**/*.keras
-**/*.pt
-**/*.pth
-**/*.onnx
-**/*.pkl
 
 # =====================================================================
 # 4. ZONA TEMPLATE EDITOR & OPERATING SYSTEM (OS) WASTE

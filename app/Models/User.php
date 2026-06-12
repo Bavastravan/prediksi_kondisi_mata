@@ -20,9 +20,16 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'username',
         'email',
         'password',
+        // Tambahan field untuk Profil Data Pasien
+        'photo',
+        'username',
+        'phone',
+        'gender',
+        'birth_place',
+        'birth_date',
+        'age',
     ];
 
     /**

@@ -563,13 +563,42 @@
 }
 </style>
 
-<a href="{{ route('diagnosa.index') }}" class="floating-decor decor-left group cursor-pointer" style="pointer-events: auto !important;">
-    <div class="icon-glass">
-        <img src="{{ asset('images/mata-icon.png') }}" 
-             alt="Icon Mata EyeExpert" 
-             class="w-16 h-16 md:w-20 md:h-20 object-contain transition duration-300 group-hover:scale-110">
-    </div>
+
+<a href="{{ route('diagnosa.index') }}"
+   aria-label="Cek kesehatan mata Anda"
+   class="group fixed bottom-5 left-5 z-50 flex items-center gap-3 rounded-full bg-teal-600 py-2.5 pl-2.5 pr-5 text-white shadow-lg shadow-teal-600/30 ring-1 ring-teal-500/40 transition-all duration-300 hover:bg-teal-700 hover:shadow-xl hover:shadow-teal-700/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 sm:bottom-8 sm:left-8">
+
+    {{-- Tooltip --}}
+    <span class="pointer-events-none absolute bottom-full left-2 mb-3 hidden w-max rounded-xl border border-teal-400/30 bg-slate-900/90 px-3 py-1.5 text-[11px] font-semibold text-white shadow-lg backdrop-blur-sm sm:block">
+        Cek Mata Anda di Sini
+        <span class="absolute -bottom-1 left-6 h-2 w-2 rotate-45 border-b border-r border-teal-400/30 bg-slate-900/90"></span>
+    </span>
+
+    {{-- Icon bulat + ping --}}
+    <span class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/15">
+        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/20"></span>
+        <svg class="relative h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1 1 0 010-.644C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178a1 1 0 010 .644C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
+    </span>
+
+    {{-- Label --}}
+    <span class="flex flex-col leading-tight">
+        <span class="text-sm font-bold">Cek Mata</span>
+        <span class="text-[11px] font-medium text-teal-100">Diagnosa cepat</span>
+    </span>
 </a>
+
+<style>
+    @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    .animate-bounce-slow {
+        animation: bounce-slow 3s ease-in-out infinite;
+    }
+</style>
 <div class="floating-decor decor-right">
 
     <!-- Bubble Chat AI -->

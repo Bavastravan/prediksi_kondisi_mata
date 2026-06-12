@@ -17,6 +17,7 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // Field Bawaan
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -26,6 +27,20 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            
+            // Tambahan Field Profil Pasien
+            'username' => [
+                'required', 
+                'string', 
+                'max:50', 
+                Rule::unique(User::class)->ignore($this->user()->id)
+            ],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'], // Format gambar max 2MB
+            'phone' => ['nullable', 'string', 'max:20'],
+            'gender' => ['nullable', 'string', 'in:Laki-laki,Perempuan'],
+            'birth_place' => ['nullable', 'string', 'max:255'],
+            'birth_date' => ['nullable', 'date'],
+            'age' => ['nullable', 'integer', 'min:0'],
         ];
     }
 }

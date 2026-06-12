@@ -17,6 +17,17 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            
+            // --- Tambahan Kolom Profil Data Pasien ---
+            $table->string('photo')->nullable();
+            $table->string('username')->unique()->nullable();
+            $table->string('phone')->nullable();
+            $table->enum('gender', ['Laki-laki', 'Perempuan'])->nullable();
+            $table->string('birth_place')->nullable();
+            $table->date('birth_date')->nullable();
+            $table->integer('age')->nullable();
+            // -----------------------------------------
+
             $table->rememberToken();
             $table->timestamps();
         });

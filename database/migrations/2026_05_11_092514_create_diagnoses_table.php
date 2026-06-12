@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('diagnoses', function (Blueprint $table) {
             $table->id();
+            
+            // 💡 Relasi ke tabel users (Sangat Penting agar tidak error 1054)
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            
             $table->integer('age');
             $table->json('symptoms'); // Menyimpan gejala yang dipilih
             $table->string('image_path'); // Nama file foto
@@ -21,6 +25,10 @@ return new class extends Migration
             $table->timestamps();
         });
     }
+
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('diagnoses');

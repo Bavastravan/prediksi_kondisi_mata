@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'EyeExpert'),
 
     /*
     |--------------------------------------------------------------------------
@@ -65,7 +65,8 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // 💡 PERBAIKAN: Set zona waktu ke Jakarta (WIB)
+    'timezone' => 'Asia/Jakarta',
 
     /*
     |--------------------------------------------------------------------------
@@ -78,11 +79,14 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    // 💡 PERBAIKAN: Ubah default ke id (Indonesia)
+    'locale' => env('APP_LOCALE', 'id'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    // 💡 PERBAIKAN: Ubah fallback ke id
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'id'),
 
-    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+    // 💡 PERBAIKAN: Ubah Faker locale agar dummy data yang dihasilkan format Indonesia
+    'faker_locale' => env('APP_FAKER_LOCALE', 'id_ID'),
 
     /*
     |--------------------------------------------------------------------------

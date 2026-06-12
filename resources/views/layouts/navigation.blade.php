@@ -43,7 +43,8 @@
                         <x-nav-link :href="route('pencegahan-mata')" :active="request()->routeIs('pencegahan-mata')">
                             Pencegahan
                         </x-nav-link>
-                        <x-nav-link :href="route('kacamata')" :active="request()->routeIs('kacamata')">
+                        {{-- 💡 PERBAIKAN: Hanya menambahkan .index di sini --}}
+                        <x-nav-link :href="route('kacamata.index')" :active="request()->routeIs('kacamata.*')">
                             Kacamata
                         </x-nav-link>
                     @endif
@@ -128,7 +129,8 @@
                 <x-responsive-nav-link :href="route('pencegahan-mata')" :active="request()->routeIs('pencegahan-mata')">
                     {{ __('Pencegahan') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('kacamata')" :active="request()->routeIs('kacamata')">
+                {{-- 💡 PERBAIKAN: Hanya menambahkan .index di sini --}}
+                <x-responsive-nav-link :href="route('kacamata.index')" :active="request()->routeIs('kacamata.*')">
                     {{ __('Kacamata') }}
                 </x-responsive-nav-link>
             @endif

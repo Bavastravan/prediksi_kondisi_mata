@@ -1,137 +1,124 @@
 <x-app-layout>
-    <div class="max-w-6xl mx-auto px-6 py-10 space-y-10">
+    {{-- ===================================================================
+         HALAMAN PENYAKIT MATA
+         Single-file Blade view. Modern, profesional, responsif.
+         Toggle detail dikelola via Alpine.js (sudah bawaan Laravel Breeze/Jetstream).
+         Jika belum ada Alpine, fallback <script> di bawah tetap berfungsi.
+    ==================================================================== --}}
+    @php
+        // Data penyakit dipusatkan di satu tempat agar mudah dikelola.
+        $penyakit = [
+            ['judul' => 'Konjungtivitis',        'kategori' => 'Infeksi',   'desc' => 'Peradangan pada konjungtiva (selaput tipis mata) yang menyebabkan mata merah, berair, dan gatal. Penyebab utama adalah infeksi virus, bakteri, atau alergi.'],
+            ['judul' => 'Katarak',               'kategori' => 'Degeneratif','desc' => 'Kekeruhan pada lensa mata yang menyebabkan penglihatan buram dan silau. Umumnya terjadi pada usia lanjut, tetapi bisa juga dipicu diabetes atau paparan UV.'],
+            ['judul' => 'Glaukoma',              'kategori' => 'Saraf',     'desc' => 'Kerusakan saraf optik akibat tekanan bola mata meningkat. Penyakit ini dapat menyebabkan kebutaan permanen jika tidak ditangani sejak dini.'],
+            ['judul' => 'Miopia',                'kategori' => 'Refraksi',  'desc' => 'Rabun jauh, di mana objek jauh terlihat buram. Disebabkan bentuk bola mata terlalu panjang atau kornea terlalu melengkung.'],
+            ['judul' => 'Pterygium',             'kategori' => 'Pertumbuhan','desc' => 'Pertumbuhan jaringan pada konjungtiva yang dapat menutupi kornea. Penyebab utama adalah paparan sinar UV, debu, dan angin.'],
+            ['judul' => 'Fotofobia',             'kategori' => 'Gejala',    'desc' => 'Sensitivitas berlebihan terhadap cahaya. Biasanya merupakan gejala infeksi mata, migrain, atau peradangan.'],
+            ['judul' => 'Mata Kering',           'kategori' => 'Fungsional','desc' => 'Terjadi karena produksi air mata tidak cukup. Menyebabkan rasa perih, seperti berpasir, dan mata mudah lelah.'],
+            ['judul' => 'Penglihatan Berkabut',  'kategori' => 'Gejala',    'desc' => 'Membuat objek terlihat buram seperti tertutup kabut. Penyebabnya bisa katarak awal atau gangguan refraksi.'],
+            ['judul' => 'Astigmatisma',          'kategori' => 'Refraksi',  'desc' => 'Kelainan bentuk kornea yang tidak sempurna, menyebabkan penglihatan kabur di semua jarak.'],
+            ['judul' => 'Diplopia',              'kategori' => 'Saraf',     'desc' => 'Kondisi melihat dua bayangan dari satu objek. Penyebabnya bisa gangguan saraf, otot mata, atau trauma kepala.'],
+        ];
+    @endphp
 
-        <!-- TITLE -->
-        <div class="text-center space-y-2">
-            <h1 class="text-4xl font-bold text-gray-800">
-                🦠 Penyakit Mata
-            </h1>
-            <p class="text-gray-500">
-                Klik judul untuk melihat penjelasan detail
-            </p>
-        </div>
+    <div class="min-h-screen bg-slate-50">
+        <div class="max-w-6xl mx-auto px-4 py-8 space-y-8 sm:px-6 sm:py-12 sm:space-y-10">
 
-        <!-- IMAGE -->
-        <div class="relative rounded-3xl overflow-hidden shadow-xl h-[500px]">
-            <img src="{{ asset('images/penyakit.jpg') }}"
-                 class="w-full h-full object-cover">
-            
-        </div>
+            {{-- ============ HEADER ============ --}}
+            <header class="text-center space-y-3">
+                                <h1 class="text-3xl font-bold tracking-tight text-slate-900 text-balance sm:text-4xl md:text-5xl">
+                    Penyakit Mata
+                </h1>
+                <p class="mx-auto max-w-xl text-sm text-slate-500 leading-relaxed text-pretty sm:text-base">
+                    Pelajari berbagai gangguan penglihatan. Ketuk salah satu kartu di bawah untuk membaca penjelasan lengkapnya.
+                </p>
+            </header>
 
-        <!-- INTRO -->
-        <div class="bg-red-50 p-6 rounded-2xl border border-red-100">
-            <p class="text-gray-700 leading-relaxed">
-                Penyakit mata merupakan gangguan pada struktur atau fungsi organ penglihatan yang dapat disebabkan oleh infeksi,
-                faktor usia, kelainan refraksi, trauma, maupun penyakit sistemik.
-            </p>
-        </div>
-
-        <!-- GRID -->
-        <div class="grid md:grid-cols-2 gap-6">
-
-            <!-- 1 -->
-            <div onclick="toggleDetail('d1')" class="cursor-pointer bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <h2 class="font-semibold text-pink-600">🦠 Konjungtivitis</h2>
-                <div id="d1" class="hidden mt-4 text-gray-600 border-t pt-3">
-                    Konjungtivitis adalah peradangan pada konjungtiva (selaput tipis mata).
-                    Kondisi ini menyebabkan mata merah, berair, dan gatal. Penyebab utama adalah infeksi virus, bakteri, atau alergi.
+            {{-- ============ HERO IMAGE ============ --}}
+            <div class="relative h-64 overflow-hidden rounded-2xl shadow-xl ring-1 ring-slate-200 sm:h-[360px] sm:rounded-3xl md:h-[460px]">
+                <img src="{{ asset('images/penyakit.jpg') }}"
+                     alt="Ilustrasi close-up mata manusia"
+                     class="h-full w-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
+                <div class="absolute bottom-0 p-5 text-white sm:p-8">
+                    <h2 class="text-xl font-semibold sm:text-2xl md:text-3xl">Kenali Sejak Dini</h2>
+                    <p class="mt-1 max-w-md text-xs text-white/80 sm:text-sm">
+                        Deteksi dini menjadi kunci untuk mencegah komplikasi penglihatan yang lebih serius.
+                    </p>
                 </div>
             </div>
 
-            <!-- 2 -->
-            <div onclick="toggleDetail('d2')" class="cursor-pointer bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <h2 class="font-semibold text-gray-700">👁️ Katarak</h2>
-                <div id="d2" class="hidden mt-4 text-gray-600 border-t pt-3">
-                    Katarak adalah kekeruhan pada lensa mata yang menyebabkan penglihatan buram dan silau.
-                    Umumnya terjadi pada usia lanjut, tetapi juga bisa dipicu diabetes atau paparan UV.
-                </div>
+            {{-- ============ INTRO ============ --}}
+            <div class="rounded-2xl border border-teal-100 bg-teal-50/60 p-5 sm:p-6 md:p-8">
+                <p class="text-sm leading-relaxed text-slate-700 sm:text-base">
+                    Penyakit mata merupakan gangguan pada struktur atau fungsi organ penglihatan yang dapat disebabkan
+                    oleh infeksi, faktor usia, kelainan refraksi, trauma, maupun penyakit sistemik seperti diabetes
+                    dan hipertensi.
+                </p>
             </div>
 
-            <!-- 3 -->
-            <div onclick="toggleDetail('d3')" class="cursor-pointer bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <h2 class="font-semibold text-green-600">📈 Glaukoma</h2>
-                <div id="d3" class="hidden mt-4 text-gray-600 border-t pt-3">
-                    Glaukoma adalah kerusakan saraf optik akibat tekanan bola mata meningkat.
-                    Penyakit ini dapat menyebabkan kebutaan permanen jika tidak ditangani.
-                </div>
+            {{-- ============ GRID PENYAKIT ============ --}}
+            <div class="grid items-start gap-5 md:grid-cols-2 lg:grid-cols-3">
+                @foreach ($penyakit as $i => $item)
+                    <div x-data="{ open: false }"
+                         @click="open = !open"
+                         class="group cursor-pointer self-start rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-teal-300 hover:shadow-lg">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="space-y-1">
+                                <span class="text-xs font-medium uppercase tracking-wide text-teal-600">{{ $item['kategori'] }}</span>
+                                <h3 class="text-lg font-semibold text-slate-900 group-hover:text-teal-700">{{ $item['judul'] }}</h3>
+                            </div>
+                            <span class="mt-1 flex h-7 w-7 flex-none items-center justify-center rounded-full bg-slate-100 text-slate-500 transition group-hover:bg-teal-100 group-hover:text-teal-700">
+                                <svg class="h-4 w-4 transition-transform duration-300" :class="open && 'rotate-45'"
+                                     fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div x-show="open" x-collapse x-cloak class="mt-4 border-t border-slate-100 pt-4 text-sm leading-relaxed text-slate-600">
+                            {{ $item['desc'] }}
+                        </div>
+                    </div>
+                @endforeach
             </div>
 
-            <!-- 4 -->
-            <div onclick="toggleDetail('d4')" class="cursor-pointer bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <h2 class="font-semibold text-blue-600">👓 Miopia</h2>
-                <div id="d4" class="hidden mt-4 text-gray-600 border-t pt-3">
-                    Miopia adalah rabun jauh, di mana objek jauh terlihat buram.
-                    Disebabkan bentuk bola mata terlalu panjang atau kornea terlalu melengkung.
-                </div>
-            </div>
-
-            <!-- 5 -->
-            <div onclick="toggleDetail('d5')" class="cursor-pointer bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <h2 class="font-semibold text-purple-600">🧬 Pterygium</h2>
-                <div id="d5" class="hidden mt-4 text-gray-600 border-t pt-3">
-                    Pterygium adalah pertumbuhan jaringan pada konjungtiva yang dapat menutupi kornea.
-                    Penyebab utama adalah paparan sinar UV, debu, dan angin.
-                </div>
-            </div>
-
-            <!-- 6 -->
-            <div onclick="toggleDetail('d6')" class="cursor-pointer bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <h2 class="font-semibold text-red-500">🌞 Fotofobia</h2>
-                <div id="d6" class="hidden mt-4 text-gray-600 border-t pt-3">
-                    Fotofobia adalah sensitivitas berlebihan terhadap cahaya.
-                    Biasanya merupakan gejala infeksi mata, migrain, atau peradangan.
-                </div>
-            </div>
-
-            <!-- 7 -->
-            <div onclick="toggleDetail('d7')" class="cursor-pointer bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <h2 class="font-semibold text-indigo-600">💧 Mata Kering</h2>
-                <div id="d7" class="hidden mt-4 text-gray-600 border-t pt-3">
-                    Mata kering terjadi karena produksi air mata tidak cukup.
-                    Menyebabkan rasa perih, seperti berpasir, dan mudah lelah.
-                </div>
-            </div>
-
-            <!-- 8 -->
-            <div onclick="toggleDetail('d8')" class="cursor-pointer bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <h2 class="font-semibold text-orange-600">🌫️ Penglihatan Berkabut</h2>
-                <div id="d8" class="hidden mt-4 text-gray-600 border-t pt-3">
-                    Penglihatan berkabut membuat objek terlihat buram seperti tertutup kabut.
-                    Penyebabnya bisa katarak awal atau gangguan refraksi.
-                </div>
-            </div>
-
-            <!-- 9 -->
-            <div onclick="toggleDetail('d9')" class="cursor-pointer bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <h2 class="font-semibold text-cyan-600">👁️ Astigmatisma</h2>
-                <div id="d9" class="hidden mt-4 text-gray-600 border-t pt-3">
-                    Astigmatisma adalah kelainan bentuk kornea yang tidak sempurna.
-                    Menyebabkan penglihatan kabur di semua jarak.
-                </div>
-            </div>
-
-            <!-- 10 -->
-            <div onclick="toggleDetail('d10')" class="cursor-pointer bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-                <h2 class="font-semibold text-emerald-600">⚡ Diplopia</h2>
-                <div id="d10" class="hidden mt-4 text-gray-600 border-t pt-3">
-                    Diplopia adalah kondisi melihat dua bayangan dari satu objek.
-                    Penyebabnya bisa gangguan saraf, otot mata, atau trauma kepala.
-                </div>
+            {{-- ============ WARNING ============ --}}
+            <div class="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                <svg class="h-5 w-5 flex-none text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008M10.34 3.94l-8.4 14.56A1.5 1.5 0 003.24 21h17.52a1.5 1.5 0 001.3-2.5L13.66 3.94a1.5 1.5 0 00-2.6 0z"/>
+                </svg>
+                <p class="text-sm leading-relaxed text-amber-800">
+                    Segera konsultasi ke dokter spesialis mata jika gejala semakin parah atau mengganggu penglihatan.
+                    Informasi di halaman ini bersifat edukatif dan bukan pengganti diagnosis medis.
+                </p>
             </div>
 
         </div>
-
-        <!-- WARNING -->
-        <div class="text-sm text-gray-500 text-center">
-            ⚠️ Segera konsultasi ke dokter jika gejala semakin parah atau mengganggu penglihatan.
-        </div>
-
     </div>
 
-    <!-- SCRIPT TOGGLE -->
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 pt-6 pb-12 text-center relative">
+        <div class="container mx-auto px-6 text-center">
+                       <p class="text-slate-500 text-xs">© 2026 <strong>Sistem Pakar Pendeteksi Gangguan Mata</strong>. Dirancang untuk edukasi dan bantuan medis berbasis komputasi.</p>
+        </div>
+    </footer>
+    
+    {{-- x-cloak: sembunyikan elemen Alpine sebelum siap --}}
+    <style>[x-cloak]{display:none!important}</style>
+
+    {{-- Fallback toggle bila Alpine.js tidak tersedia di layout --}}
     <script>
-        function toggleDetail(id) {
-            document.getElementById(id).classList.toggle('hidden');
+        if (!window.Alpine) {
+            document.querySelectorAll('[x-data]').forEach(function (card) {
+                var detail = card.querySelector('[x-show]');
+                var icon = card.querySelector('svg.transition-transform');
+                if (detail) detail.style.display = 'none';
+                card.addEventListener('click', function () {
+                    var hidden = detail.style.display === 'none';
+                    detail.style.display = hidden ? 'block' : 'none';
+                    if (icon) icon.classList.toggle('rotate-45', hidden);
+                });
+            });
         }
     </script>
 

@@ -36,51 +36,59 @@ class DiagnosisController extends Controller
         $aiValidation   = 'success';
 
         try {
-            // ===== PERBAIKAN 1: Auto-detect Python path (Windows/Linux/Mac) =====
+            // ===== PERBAIKAN KRITIS: Auto-detect Python path =====
             $pythonPath = $this->getPythonPath();
             $scriptPath = base_path('ai-engine/predict.py');
             
-            // Validasi script ada
-            if (!file_exists($scriptPath)) {
-                throw new \Exception('Script predict.py tidak ditemukan di: ' . $scriptPath);
-            }
-
-            // ===== PERBAIKAN 2: Gunakan escapeshellarg untuk safety & compatibility =====
+            // ===== PERBAIKAN KRITIS 2: Normalisasi path untuk Windows =====
+            // Windows membutuhkan backslash, bukan forward slash
             if (PHP_OS_FAMILY === 'Windows') {
-                $command = $pythonPath . ' ' . escapeshellarg($scriptPath) . ' ' . escapeshellarg($fullImagePath);
-            } else {
-                $command = $pythonPath . ' ' . escapeshellarg($scriptPath) . ' ' . escapeshellarg($fullImagePath);
+                $fullImagePath = str_replace('/', '\\', $fullImagePath);
+                $scriptPath = str_replace('/', '\\', $scriptPath);
+                $pythonPath = str_replace('/', '\\', $pythonPath);
             }
             
-            Log::info('Executing AI command', ['python_path' => $pythonPath]);
-            
-            // ===== PERBAIKAN 3: Check if shell_exec is disabled =====
-            if (function_exists('exec')) {
-                exec($command . ' 2>&1', $outputArray, $returnCode);
-                $output = implode("\n", $outputArray);
-                
-                if ($returnCode !== 0 && empty($output)) {
-                    throw new \Exception('Python script error (return code: ' . $returnCode . '). Periksa Python path dan script.');
-                }
-            } else {
-                throw new \Exception('shell_exec dan exec() di-disable di server ini.');
+            // Validasi file ada sebelum eksekusi
+            if (!file_exists($fullImagePath)) {
+                throw new \Exception('File gambar tidak ditemukan: ' . $fullImagePath);
             }
 
-            // ===== PERBAIKAN 4: Robust output parsing =====
+            if (!file_exists($scriptPath)) {
+                throw new \Exception('Script predict.py tidak ditemukan: ' . $scriptPath);
+            }
+
+            // ===== Buat command dengan proper escaping =====
+            $command = $pythonPath . ' ' . escapeshellarg($scriptPath) . ' ' . escapeshellarg($fullImagePath);
+            
+            Log::info('Executing AI Engine', [
+                'python_path' => $pythonPath,
+                'script_path' => $scriptPath,
+                'image_path' => $fullImagePath,
+                'command' => $command
+            ]);
+            
+            // ===== Jalankan dengan exec() dan return code checking =====
+            exec($command . ' 2>&1', $outputArray, $returnCode);
+            $output = implode("\n", $outputArray);
+
             if (empty($output)) {
-                throw new \Exception('AI Engine tidak menghasilkan output. Output kosong.');
+                throw new \Exception('Python tidak menghasilkan output. Return code: ' . $returnCode);
             }
 
-            Log::info('AI Engine output', ['output' => $output]);
+            Log::info('AI Engine Output', [
+                'return_code' => $returnCode,
+                'output_length' => strlen($output),
+                'first_500_chars' => substr($output, 0, 500)
+            ]);
 
-            // Cari JSON terakhir dari output
+            // ===== Parse output dengan robust error handling =====
             $lines = array_filter(array_map('trim', explode("\n", $output)));
             
             if (empty($lines)) {
-                throw new \Exception('Output parsing gagal: tidak ada baris output.');
+                throw new \Exception('Output parsing gagal: tidak ada baris valid');
             }
 
-            // Cari JSON dari belakang (karena mungkin ada output lain sebelumnya)
+            // Cari JSON dari belakang (mungkin ada warning di depan)
             $jsonLine = null;
             for ($i = count($lines) - 1; $i >= 0; $i--) {
                 if (strpos($lines[$i], '{') !== false && strpos($lines[$i], '}') !== false) {
@@ -90,41 +98,30 @@ class DiagnosisController extends Controller
             }
 
             if (!$jsonLine) {
-                throw new \Exception('JSON tidak ditemukan di output: ' . substr($output, 0, 200));
+                throw new \Exception('JSON tidak ditemukan. Last line: ' . end($lines));
             }
 
-            // ===== PERBAIKAN 5: Flexible JSON parsing =====
+            // ===== Flexible JSON parsing =====
             $aiResult = json_decode($jsonLine, true);
 
             if ($aiResult === null) {
-                // Coba extract menggunakan regex jika JSON parsing gagal
-                if (preg_match('/\"prediction\"\s*:\s*\"([^\"]+)\"/', $output, $predMatches) &&
-                    preg_match('/\"confidence\"\s*:\s*(\d+(?:\.\d+)?)/', $output, $confMatches)) {
-                    
-                    $aiPrediction = $predMatches[1];
-                    $aiConfidence = floatval($confMatches[1]);
-                    if ($aiConfidence > 1) {
-                        $aiConfidence = $aiConfidence / 100; // Normalize if percentage
-                    }
-                } else {
-                    throw new \Exception('Invalid JSON format: ' . $jsonLine);
-                }
-            } else {
-                // ===== PERBAIKAN 6: Flexible validation (tidak require 'status') =====
-                if (!isset($aiResult['prediction'])) {
-                    throw new \Exception('Missing prediction field in AI output');
-                }
+                throw new \Exception('Invalid JSON format: ' . $jsonLine);
+            }
 
-                $aiPrediction = $aiResult['prediction'] ?? 'normal';
-                $confidence = $aiResult['confidence'] ?? '0';
-                
-                // Handle confidence sebagai string atau number
-                $aiConfidence = floatval(str_replace('%', '', $confidence));
-                
-                // Normalize confidence (jika format 0-100, konversi ke 0-1)
-                if ($aiConfidence > 1) {
-                    $aiConfidence = $aiConfidence / 100;
-                }
+            // ===== Validasi response =====
+            if (!isset($aiResult['prediction'])) {
+                throw new \Exception('Missing "prediction" field in AI response');
+            }
+
+            $aiPrediction = $aiResult['prediction'];
+            $confidence = $aiResult['confidence'] ?? '0';
+            
+            // Handle confidence (string atau number)
+            $aiConfidence = floatval(str_replace('%', '', $confidence));
+            
+            // Normalize confidence ke 0-1 range
+            if ($aiConfidence > 1) {
+                $aiConfidence = $aiConfidence / 100;
             }
 
         } catch (\Exception $e) {
@@ -133,11 +130,11 @@ class DiagnosisController extends Controller
             $aiMessage    = 'Gagal menjalankan Engine AI: ' . $e->getMessage();
             $aiValidation = 'error';
             
-            // Log untuk debugging
             Log::error('AI Engine Error', [
-                'error' => $e->getMessage(),
+                'message' => $e->getMessage(),
                 'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'line' => $e->getLine(),
+                'image_path' => $fullImagePath ?? 'undefined'
             ]);
         }
 
@@ -202,15 +199,15 @@ class DiagnosisController extends Controller
     }
 
     /**
-     * ===== HELPER: Auto-detect Python path berdasarkan OS =====
-     * Mengembalikan path Python yang sesuai dengan sistem operasi
+     * Auto-detect Python path berdasarkan OS
+     * Mencari Python dari berbagai lokasi yang mungkin
      */
     private function getPythonPath()
     {
         $isWindows = PHP_OS_FAMILY === 'Windows';
         
         if ($isWindows) {
-            // Windows paths
+            // Prioritas path untuk Windows
             $potentialPaths = [
                 base_path('ai-engine\\venv\\Scripts\\python.exe'),
                 base_path('ai-engine/venv/Scripts/python.exe'),
@@ -218,7 +215,7 @@ class DiagnosisController extends Controller
                 'python',
             ];
         } else {
-            // Linux/Mac paths
+            // Prioritas path untuk Linux/Mac
             $potentialPaths = [
                 base_path('ai-engine/venv/bin/python3'),
                 base_path('ai-engine/venv/bin/python'),

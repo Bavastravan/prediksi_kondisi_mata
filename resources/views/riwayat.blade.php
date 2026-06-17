@@ -360,4 +360,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+
+<footer class="bg-white border-t border-slate-200 pt-6 pb-12 text-center relative">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-slate-500 text-[10px] sm:text-xs">© 2026 <strong>Sistem Pakar Pendeteksi Gangguan Mata</strong>. Dirancang untuk edukasi dan bantuan medis berbasis komputasi.</p>
+        </div>
+    </footer>
 </x-app-layout>

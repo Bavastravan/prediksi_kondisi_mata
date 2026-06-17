@@ -95,6 +95,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
     });
 
+    Route::get('/debug-php', function () {
+    return response()->json([
+        'php_ini'        => php_ini_loaded_file(),
+        'upload_max'     => ini_get('upload_max_filesize'),
+        'post_max'       => ini_get('post_max_size'),
+        'tmp_dir'        => sys_get_temp_dir(),
+        'storage_link'   => is_link(public_path('storage')),
+        'eyes_dir'       => is_dir(storage_path('app/public/eyes')),
+        'storage_writable' => is_writable(storage_path('app/public')),
+        'tmp_writable'   => is_writable(sys_get_temp_dir()),
+    ]);
+});
+
 }); // Penutup tunggal grup middleware auth yang sah dan pas!
 
 require __DIR__.'/auth.php';

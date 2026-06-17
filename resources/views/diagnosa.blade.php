@@ -8,6 +8,19 @@
             </div>
 
             <div class="bg-white overflow-hidden shadow-xl rounded-2xl p-5 sm:p-8 border border-gray-100">
+                
+                {{-- KOTAK PENAMPIL ERROR (Ini yang sebelumnya hilang) --}}
+                @if ($errors->any())
+                    <div class="bg-rose-50 border border-rose-500 text-rose-600 px-4 py-3 rounded-xl mb-6 shadow-sm">
+                        <strong class="font-bold text-sm">Pemeriksaan Ditolak:</strong>
+                        <ul class="list-disc pl-5 mt-1 text-sm">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <form action="{{ route('diagnosa.store') }}" method="POST" enctype="multipart/form-data" id="form-diagnosa">
                     @csrf
                     
@@ -20,20 +33,20 @@
                                 </svg>
                                 Data Dasar Pasien
                             </h3>
-                          <div class="space-y-1">
+                            <div class="space-y-1">
     <label class="text-[11px] font-bold text-blue-900 uppercase italic tracking-wider">
         Usia Kronologis (Tahun)
     </label>
     <input 
         type="number" 
         name="age" 
-        value="{{ auth()->user()->birth_date ? \Carbon\Carbon::parse(auth()->user()->birth_date)->age : '' }}" 
+        value="{{ auth()->user()->age ?? '' }}" 
         readonly
-        class="w-full border-gray-200 rounded-lg bg-gray-100 shadow-sm transition-all text-sm py-2.5 cursor-not-allowed text-gray-500" 
+        class="w-full border-gray-200 rounded-lg shadow-sm transition-all text-sm py-2.5 bg-slate-100 text-slate-500 cursor-not-allowed select-none focus:border-gray-200 focus:ring-0" 
+        placeholder="Usia pasien otomatis terisi"
         required>
 </div>
-                        </div>
-
+</div>
                         <div class="flex flex-col">
                             <label class="text-sm font-bold text-gray-700 flex items-center mb-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,10 +130,6 @@
                 <div class="absolute top-0 left-0 w-full h-1 bg-indigo-400 shadow-[0_0_15px_#818cf8] animate-scan"></div>
                 <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent pointer-events-none"></div>
             </div>
-            <div class="absolute -top-2 -left-2 w-6 h-6 border-t-4 border-l-4 border-indigo-400 rounded-tl-lg"></div>
-            <div class="absolute -top-2 -right-2 w-6 h-6 border-t-4 border-r-4 border-indigo-400 rounded-tr-lg"></div>
-            <div class="absolute -bottom-2 -left-2 w-6 h-6 border-b-4 border-l-4 border-indigo-400 rounded-bl-lg"></div>
-            <div class="absolute -bottom-2 -right-2 w-6 h-6 border-b-4 border-r-4 border-indigo-400 rounded-br-lg"></div>
         </div>
         <div class="mt-8 text-center px-4">
             <h3 class="text-white text-lg sm:text-xl font-bold tracking-widest uppercase animate-pulse">Memproses Citra Medis</h3>
@@ -151,15 +160,10 @@
         const fileInput = document.getElementById('eye_image');
 
         function triggerUpload(type) {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
+            // Hapus deteksi isMobile agar Desktop maupun Mobile 
+            // sama-sama menggunakan fitur HTML5 Webcam (video)
             if (type === 'camera') {
-                if (isMobile) {
-                    fileInput.setAttribute('capture', 'environment');
-                    fileInput.click();
-                } else {
-                    startWebcam();
-                }
+                startWebcam();
             } else {
                 fileInput.removeAttribute('capture');
                 fileInput.click();
@@ -168,15 +172,18 @@
 
         async function startWebcam() {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                // Tambahkan { facingMode: "environment" } agar di HP otomatis membuka kamera belakang
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" } 
+                });
                 video.srcObject = stream;
                 
                 document.getElementById('upload-placeholder').classList.add('hidden');
-                document.getElementById('preview-wrapper').classList.add('hidden'); // Sembunyikan prev jika nyala
+                document.getElementById('preview-wrapper').classList.add('hidden');
                 document.getElementById('webcam-container').classList.remove('hidden');
                 document.getElementById('webcam-container').classList.add('flex');
             } catch (err) {
-                alert("Gagal mengakses kamera. Pastikan browser memiliki izin untuk menggunakan kamera laptop Anda.");
+                alert("Gagal mengakses kamera. Pastikan browser memiliki izin untuk menggunakan kamera perangkat Anda.");
             }
         }
 
@@ -188,7 +195,6 @@
             document.getElementById('webcam-container').classList.add('hidden');
             document.getElementById('webcam-container').classList.remove('flex');
             
-            // Jika tidak ada gambar yang sedang di-preview, tampilkan placeholder
             if (document.getElementById('preview-wrapper').classList.contains('hidden')) {
                 document.getElementById('upload-placeholder').classList.remove('hidden');
             }
@@ -222,7 +228,6 @@
                     output.src = reader.result;
                     scanPreview.src = reader.result;
                     
-                    // Tampilkan wrapper gambar yang baru
                     document.getElementById('preview-wrapper').classList.remove('hidden');
                     document.getElementById('upload-placeholder').classList.add('hidden');
                 }
@@ -230,24 +235,15 @@
             }
         }
 
-        // ========================================================
-        // FUNGSI BARU: Untuk Menghapus Gambar via Tombol 'X'
-        // ========================================================
         function removeImage() {
-            // Kosongkan file input agar required form kembali bekerja
             fileInput.value = "";
-            
-            // Hapus source gambar
             document.getElementById('image-preview').src = "";
             document.getElementById('scan-preview').src = "";
-            
-            // Sembunyikan area preview dan tampilkan kembali tombol pilihan
             document.getElementById('preview-wrapper').classList.add('hidden');
             document.getElementById('upload-placeholder').classList.remove('hidden');
         }
 
         document.getElementById('form-diagnosa').onsubmit = function(e) {
-            // Validasi tambahan: Pastikan form tidak dikirim jika gambar belum ada
             if(fileInput.files.length === 0) {
                 alert("Silakan unggah foto mata terlebih dahulu!");
                 e.preventDefault();
@@ -259,9 +255,11 @@
             const btnSubmit = document.getElementById('btn-submit');
             document.getElementById('btn-text').innerText = "Sedang Memproses AI...";
             document.getElementById('spinner').classList.remove('hidden');
-            btnSubmit.classList.add('opacity-75', 'cursor-not-allowed');
             
-            setTimeout(() => { btnSubmit.disabled = true; }, 50);
+            // PERBAIKAN: Gunakan pointer-events-none, JANGAN gunakan disabled=true 
+            // agar browser tidak panik dan membatalkan pengiriman form.
+            btnSubmit.classList.add('opacity-75', 'pointer-events-none');
+            
             return true;
         };
     </script>

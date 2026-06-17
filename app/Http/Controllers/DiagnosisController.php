@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use App\Models\Diagnosis;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class DiagnosisController extends Controller
 {
@@ -16,129 +18,114 @@ class DiagnosisController extends Controller
 
     public function store(Request $request)
     {
-        // Beri waktu 5 menit untuk AI berpikir
         set_time_limit(300);
 
-        // 1. Validasi Input (Hanya Umur & Gambar)
-        $request->validate([
-            'age'       => 'required|integer|min:1|max:120',
-            'eye_image' => 'required|image|mimes:jpeg,png,jpg|max:5120',
-        ]);
-
-        // 2. Simpan Gambar
-        $imagePath     = $request->file('eye_image')->store('eyes', 'public');
-        $fullImagePath = storage_path('app/public/' . $imagePath);
-
-        // 3. Jalankan Python AI Engine
-        $aiPrediction   = 'normal';
-        $aiConfidence   = 0.0;
-        $aiMessage      = 'Analisis citra mata berhasil diproses oleh AI Engine.';
-        $aiValidation   = 'success';
-
-        try {
-            // ===== PERBAIKAN KRITIS: Auto-detect Python path =====
-            $pythonPath = $this->getPythonPath();
-            $scriptPath = base_path('ai-engine/predict.py');
-            
-            // ===== PERBAIKAN KRITIS 2: Normalisasi path untuk Windows =====
-            // Windows membutuhkan backslash, bukan forward slash
-            if (PHP_OS_FAMILY === 'Windows') {
-                $fullImagePath = str_replace('/', '\\', $fullImagePath);
-                $scriptPath = str_replace('/', '\\', $scriptPath);
-                $pythonPath = str_replace('/', '\\', $pythonPath);
-            }
-            
-            // Validasi file ada sebelum eksekusi
-            if (!file_exists($fullImagePath)) {
-                throw new \Exception('File gambar tidak ditemukan: ' . $fullImagePath);
-            }
-
-            if (!file_exists($scriptPath)) {
-                throw new \Exception('Script predict.py tidak ditemukan: ' . $scriptPath);
-            }
-
-            // ===== Buat command dengan proper escaping =====
-            $command = $pythonPath . ' ' . escapeshellarg($scriptPath) . ' ' . escapeshellarg($fullImagePath);
-            
-            Log::info('Executing AI Engine', [
-                'python_path' => $pythonPath,
-                'script_path' => $scriptPath,
-                'image_path' => $fullImagePath,
-                'command' => $command
-            ]);
-            
-            // ===== Jalankan dengan exec() dan return code checking =====
-            exec($command . ' 2>&1', $outputArray, $returnCode);
-            $output = implode("\n", $outputArray);
-
-            if (empty($output)) {
-                throw new \Exception('Python tidak menghasilkan output. Return code: ' . $returnCode);
-            }
-
-            Log::info('AI Engine Output', [
-                'return_code' => $returnCode,
-                'output_length' => strlen($output),
-                'first_500_chars' => substr($output, 0, 500)
-            ]);
-
-            // ===== Parse output dengan robust error handling =====
-            $lines = array_filter(array_map('trim', explode("\n", $output)));
-            
-            if (empty($lines)) {
-                throw new \Exception('Output parsing gagal: tidak ada baris valid');
-            }
-
-            // Cari JSON dari belakang (mungkin ada warning di depan)
-            $jsonLine = null;
-            for ($i = count($lines) - 1; $i >= 0; $i--) {
-                if (strpos($lines[$i], '{') !== false && strpos($lines[$i], '}') !== false) {
-                    $jsonLine = $lines[$i];
-                    break;
-                }
-            }
-
-            if (!$jsonLine) {
-                throw new \Exception('JSON tidak ditemukan. Last line: ' . end($lines));
-            }
-
-            // ===== Flexible JSON parsing =====
-            $aiResult = json_decode($jsonLine, true);
-
-            if ($aiResult === null) {
-                throw new \Exception('Invalid JSON format: ' . $jsonLine);
-            }
-
-            // ===== Validasi response =====
-            if (!isset($aiResult['prediction'])) {
-                throw new \Exception('Missing "prediction" field in AI response');
-            }
-
-            $aiPrediction = $aiResult['prediction'];
-            $confidence = $aiResult['confidence'] ?? '0';
-            
-            // Handle confidence (string atau number)
-            $aiConfidence = floatval(str_replace('%', '', $confidence));
-            
-            // Normalize confidence ke 0-1 range
-            if ($aiConfidence > 1) {
-                $aiConfidence = $aiConfidence / 100;
-            }
-
-        } catch (\Exception $e) {
-            $aiPrediction = 'diagnosa_gagal';
-            $aiConfidence = 0.0;
-            $aiMessage    = 'Gagal menjalankan Engine AI: ' . $e->getMessage();
-            $aiValidation = 'error';
-            
-            Log::error('AI Engine Error', [
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'image_path' => $fullImagePath ?? 'undefined'
-            ]);
+        // ===== 1. PENCEGAHAN FORM KOSONG AKIBAT XAMPP =====
+        if (empty($request->all()) && $request->isMethod('post')) {
+            return back()->withErrors(['eye_image' => 'Ukuran file gambar terlalu besar dan ditolak oleh server. Maksimal 5MB.']);
         }
 
-        // 4. Map nama kelas Python (8 Kelas Terbaru) ke nama tampilan Website
+        // ===== 2. VALIDASI INPUT =====
+        $request->validate([
+            'age'       => 'required|integer|min:1|max:120',
+            'eye_image' => 'required|file|max:10240', // naik ke 10MB
+        ], [
+            'age.required'       => 'Usia kronologis pasien wajib diisi.',
+            'eye_image.required' => 'Anda belum memilih foto mata untuk dianalisis.',
+            'eye_image.max'      => 'Ukuran foto maksimal adalah 10 MB.',
+        ]);
+
+        // ===== 3. SIMPAN GAMBAR =====
+        $uploadedFile = $request->file('eye_image');
+
+        if (!$uploadedFile || !$uploadedFile->isValid()) {
+            $errorCode = $uploadedFile ? $uploadedFile->getError() : 4;
+            $errorMessages = [
+                1 => 'File melebihi batas upload_max_filesize di php.ini.',
+                2 => 'File melebihi batas MAX_FILE_SIZE di form.',
+                3 => 'File hanya terupload sebagian.',
+                4 => 'Tidak ada file yang dikirim.',
+                6 => 'Folder temporary tidak ditemukan (sys_temp_dir).',
+                7 => 'Gagal menulis file ke disk.',
+                8 => 'Upload diblokir oleh ekstensi PHP.',
+            ];
+            $errorMsg = $errorMessages[$errorCode] ?? 'Error upload tidak diketahui (kode: ' . $errorCode . ')';
+            Log::error('File upload invalid', ['error_code' => $errorCode, 'message' => $errorMsg]);
+            return back()->withErrors(['eye_image' => 'Gagal upload: ' . $errorMsg]);
+        }
+
+        $imagePath     = $uploadedFile->store('eyes', 'public');
+        $fullImagePath = storage_path('app/public/' . $imagePath);
+
+        Log::info('File uploaded successfully', [
+            'image_path'      => $imagePath,
+            'full_image_path' => $fullImagePath,
+        ]);
+
+        // ===== 4. PANGGIL FASTAPI / EXEC PYTHON =====
+        $rawPrediction = '';
+        $aiConfidence  = 0.0;
+        $aiMessage     = 'Analisis citra mata berhasil diproses oleh AI Engine.';
+        $aiValidation  = 'success';
+
+        $aiEngineUrl = env('AI_ENGINE_URL', 'http://127.0.0.1:8080');
+        $usesFastApi = !empty($aiEngineUrl);
+
+        if ($usesFastApi) {
+            try {
+                $response = Http::timeout(60)
+                    ->attach('file', file_get_contents($fullImagePath), basename($fullImagePath))
+                    ->post($aiEngineUrl . '/predict');
+
+                if ($response->successful()) {
+                    $result = $response->json();
+                    
+                    if (isset($result['prediction']) || isset($result['class'])) {
+                        $rawPrediction = $result['prediction'] ?? $result['class'];
+                        
+                        $conf = $result['confidence'] ?? 0;
+                        $aiConfidence = is_string($conf)
+                            ? floatval(str_replace('%', '', $conf)) / 100
+                            : (floatval($conf) > 1 ? floatval($conf) / 100 : floatval($conf));
+                    } else {
+                        throw new \Exception('Response FastAPI tidak memiliki field prediction.');
+                    }
+                } else {
+                    throw new \Exception('FastAPI error HTTP ' . $response->status());
+                }
+
+            } catch (\Exception $e) {
+                Log::warning('FastAPI gagal, fallback ke exec Python', ['error' => $e->getMessage()]);
+                [$rawPrediction, $aiConfidence, $aiMessage, $aiValidation] = $this->runPythonExec($fullImagePath);
+            }
+        } else {
+            [$rawPrediction, $aiConfidence, $aiMessage, $aiValidation] = $this->runPythonExec($fullImagePath);
+        }
+
+        // ===== 5. SISTEM KEYWORD MATCHING (SANGAT TANGGUH) =====
+        // Ini memastikan apapun format teks dari Python, akan terdeteksi dengan tepat
+        $rawLow = strtolower((string) $rawPrediction);
+        $aiPrediction = 'diagnosa_gagal';
+
+        if (str_contains($rawLow, 'cataract') || str_contains($rawLow, 'katarak')) {
+            $aiPrediction = 'cataract';
+        } elseif (str_contains($rawLow, 'pterygium') || str_contains($rawLow, 'daging')) {
+            $aiPrediction = 'daging_tumbuh_pterygium';
+        } elseif (str_contains($rawLow, 'hordeolum') || str_contains($rawLow, 'bintitan')) {
+            $aiPrediction = 'hordeolum_bintitan';
+        } elseif (str_contains($rawLow, 'iritasi')) {
+            $aiPrediction = 'iritasi_mata';
+        } elseif (str_contains($rawLow, 'hermohage') || str_contains($rawLow, 'hemorrhage') || str_contains($rawLow, 'berdarah')) {
+            $aiPrediction = 'mata_berdarah_hermohage';
+        } elseif (str_contains($rawLow, 'kacamata')) {
+            $aiPrediction = 'mata_berkacamata';
+        } elseif (str_contains($rawLow, 'bukan') || str_contains($rawLow, 'invalid')) {
+            $aiPrediction = 'bukan_mata';
+        } elseif (str_contains($rawLow, 'normal') || str_contains($rawLow, 'sehat')) {
+            $aiPrediction = 'normal';
+        }
+
+        // Map ke nama tampilan
         $classMap = [
             'bukan_mata'              => 'Bukan Mata',
             'cataract'                => 'Katarak',
@@ -152,16 +139,16 @@ class DiagnosisController extends Controller
         ];
 
         $finalPrediction = $classMap[$aiPrediction] ?? 'Diagnosa Gagal';
-        
-        // Pastikan persentase 0% JIKA Bukan Mata, Mata Berkacamata, atau Gagal
-        if ($aiPrediction === 'diagnosa_gagal' || $aiPrediction === 'bukan_mata' || $aiPrediction === 'mata_berkacamata') {
+
+        // ===== 6. HITUNG CONFIDENCE =====
+        if (in_array($aiPrediction, ['diagnosa_gagal', 'bukan_mata', 'mata_berkacamata'])) {
             $finalConfidencePercentage = 0;
-            $aiValidation = 'error'; 
+            $aiValidation = 'error';
         } else {
             $finalConfidencePercentage = min(100, max(1, round($aiConfidence * 100)));
         }
 
-        // 5. Buat Kesimpulan Medis Khusus
+        // ===== 7. KESIMPULAN MEDIS =====
         if ($aiPrediction === 'mata_berkacamata') {
             $kesimpulan = 'Lepas kacamata atau aksesoris Anda terlebih dahulu agar proses diagnosa akurat. Anda juga dapat melihat jenis-jenis kacamata yang sesuai untuk Anda <a href="' . route('kacamata.index') . '" class="text-blue-600 underline font-bold hover:text-blue-800">disini</a>.';
         } else {
@@ -173,67 +160,109 @@ class DiagnosisController extends Controller
                 str_contains($finalPrediction, 'Hemorrhage') => 'Terdeteksi Mata Berdarah. Jangan mengucek mata dan segera kunjungi klinik terdekat.',
                 str_contains($finalPrediction, 'Sehat')      => 'Mata Sehat & Normal. Tidak terdeteksi kelainan visual yang signifikan.',
                 str_contains($finalPrediction, 'Bukan Mata') => 'Gambar yang diunggah tidak dikenali sebagai organ mata. Mohon ulangi dengan foto yang benar.',
-                default                                      => 'Analisis tidak dapat diselesaikan. Coba ulangi proses diagnosa.',
+                default                                      => 'Analisis tidak dapat diselesaikan. Pastikan foto mata jelas dan coba ulangi diagnosa.',
             };
         }
 
-        // 6. Simpan ke Database
+        // ===== 8. SIMPAN KE DATABASE =====
         Diagnosis::create([
-            'user_id'    => auth()->id(),
+            'user_id'    => Auth::id(),
             'age'        => $request->age,
-            'symptoms'   => json_encode([]), 
+            'symptoms'   => json_encode([]),
             'image_path' => $imagePath,
             'result'     => $finalPrediction,
             'confidence' => $finalConfidencePercentage,
         ]);
 
-        // 7. Tampilkan ke Halaman Hasil
+        // ===== 9. TAMPILKAN HASIL =====
         return view('diagnosa_hasil', [
             'class'      => $finalPrediction,
             'confidence' => $finalConfidencePercentage,
             'message'    => $aiMessage,
             'validation' => $aiValidation,
-            'kesimpulan' => $kesimpulan, 
+            'kesimpulan' => $kesimpulan,
             'image_path' => $imagePath,
         ]);
     }
 
     /**
-     * Auto-detect Python path berdasarkan OS
-     * Mencari Python dari berbagai lokasi yang mungkin
+     * Fallback: Jalankan prediksi via exec() Python langsung
      */
-    private function getPythonPath()
+    private function runPythonExec(string $fullImagePath): array
     {
-        $isWindows = PHP_OS_FAMILY === 'Windows';
-        
-        if ($isWindows) {
-            // Prioritas path untuk Windows
-            $potentialPaths = [
-                base_path('ai-engine\\venv\\Scripts\\python.exe'),
-                base_path('ai-engine/venv/Scripts/python.exe'),
-                'python.exe',
-                'python',
-            ];
-        } else {
-            // Prioritas path untuk Linux/Mac
-            $potentialPaths = [
-                base_path('ai-engine/venv/bin/python3'),
-                base_path('ai-engine/venv/bin/python'),
-                '/usr/bin/python3',
-                '/usr/bin/python',
-                'python3',
-                'python',
-            ];
+        $rawPrediction = 'diagnosa_gagal';
+        $aiConfidence  = 0.0;
+        $aiMessage     = 'Analisis citra mata berhasil diproses oleh AI Engine.';
+        $aiValidation  = 'success';
+
+        try {
+            $pythonPath = env('AI_PYTHON_PATH', $this->getPythonPath());
+            $scriptPath = base_path('ai-engine/predict.py');
+
+            if (PHP_OS_FAMILY === 'Windows') {
+                $fullImagePath = str_replace('/', '\\', $fullImagePath);
+                $scriptPath    = str_replace('/', '\\', $scriptPath);
+                $pythonPath    = str_replace('/', '\\', $pythonPath);
+            }
+
+            $command = '"' . $pythonPath . '" "' . $scriptPath . '" "' . $fullImagePath . '" 2>&1';
+            exec($command, $outputArray, $returnCode);
+            $output = implode("\n", $outputArray);
+
+            $lines    = array_values(array_filter(array_map('trim', explode("\n", $output))));
+            $jsonLine = null;
+            for ($i = count($lines) - 1; $i >= 0; $i--) {
+                if (str_contains($lines[$i], '{') && str_contains($lines[$i], '}')) {
+                    $jsonLine = $lines[$i];
+                    break;
+                }
+            }
+
+            if ($jsonLine) {
+                $aiResult = json_decode($jsonLine, true);
+                if (isset($aiResult['prediction']) || isset($aiResult['class'])) {
+                    $rawPrediction = $aiResult['prediction'] ?? $aiResult['class'];
+                    
+                    $conf = $aiResult['confidence'] ?? '0';
+                    $aiConfidence = floatval(str_replace('%', '', (string)$conf));
+                    if ($aiConfidence > 1) {
+                        $aiConfidence /= 100;
+                    }
+                }
+            }
+
+        } catch (\Exception $e) {
+            $rawPrediction = 'diagnosa_gagal';
+            $aiConfidence  = 0.0;
+            $aiMessage     = 'Gagal menjalankan Engine AI: ' . $e->getMessage();
+            $aiValidation  = 'error';
         }
 
-        // Cari path pertama yang exists
+        return [$rawPrediction, $aiConfidence, $aiMessage, $aiValidation];
+    }
+
+    private function getPythonPath(): string
+    {
+        $isWindows = PHP_OS_FAMILY === 'Windows';
+        $potentialPaths = $isWindows ? [
+            base_path('ai-engine\\venv\\Scripts\\python.exe'),
+            base_path('ai-engine/venv/Scripts/python.exe'),
+            'python.exe',
+            'python',
+        ] : [
+            base_path('ai-engine/venv/bin/python3'),
+            base_path('ai-engine/venv/bin/python'),
+            '/usr/bin/python3',
+            '/usr/bin/python',
+            'python3',
+            'python',
+        ];
+
         foreach ($potentialPaths as $path) {
             if (file_exists($path)) {
                 return $path;
             }
         }
-
-        // Fallback ke global python
         return $isWindows ? 'python' : 'python3';
     }
 }
